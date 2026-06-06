@@ -1548,3 +1548,183 @@ class GameController {
                 // Damage boss
                 this.chad.bossHp--;
                 sounds.playHit();
+                this.floatingTexts.push(new FloatingText(this.chad.x, this.chad.y - 20, "STUDY ATTACK! -1 HP", '#ff3366'));
+                
+                // If defeated
+                if (this.chad.bossHp <= 0) {
+                    this.chad.isBoss = false; // Defeated
+                    this.chad.width = 36;
+                    this.chad.height = 54;
+                    this.chad.y = 326;
+                } else {
+                    // Reset switch after 3 seconds for next jump
+                    setTimeout(() => {
+                        this.switches.forEach(sw => sw.pressed = false);
+                    }, 2500);
+                }
+            }
+        }, 50);
+    }
+
+    finishLevel() {
+        this.gameState = 'cutscene';
+        
+        if (this.level === 1) {
+            this.triggerCutscene(DIALOGUES.L1_END, () => {
+                this.loadLevel(2);
+            });
+        } else if (this.level === 2) {
+            this.triggerCutscene(DIALOGUES.L2_END, () => {
+                this.loadLevel(3);
+            });
+        } else if (this.level === 3) {
+            this.triggerCutscene(DIALOGUES.L3_END, () => {
+                this.showSadEnding();
+            });
+        }
+    }
+
+    showSadEnding() {
+        this.gameState = 'victory';
+        sounds.clearSadSong();
+        sounds.playSadHindiSong();
+        
+        const victoryScreen = document.getElementById('victory-screen');
+        victoryScreen.classList.remove('hidden');
+        victoryScreen.classList.add('active');
+        document.getElementById('hud').classList.add('hidden');
+
+        // Draw cinema display
+        const cinema = document.getElementById('ending-cinema');
+        cinema.innerHTML = `
+            <div class="sad-bedroom">
+                <div class="pixel-window">🌌</div>
+                <div class="sad-bed">
+                    <div class="bed-pillow"></div>
+                    <div class="bed-blanket"></div>
+                    <div class="rahul-lying">
+                        <div class="face-lying">👓💧</div>
+                        <div class="beer-bottle">🍾</div>
+                    </div>
+                </div>
+                <div class="pixel-speaker">
+                    <div class="speaker-grill"></div>
+                    <div class="sound-wave wave-1">)</div>
+                    <div class="sound-wave wave-2">)</div>
+                </div>
+                <div class="floating-lyrics">"Accha chalta hoon, duaon mein yaad rakhna... 💔🍺"</div>
+            </div>
+            <style>
+                .sad-bedroom {
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(180deg, #0a0b16, #1b1c3a);
+                    position: relative;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    overflow: hidden;
+                    border: 2px solid var(--neon-red);
+                }
+                .pixel-window {
+                    position: absolute;
+                    top: 15px;
+                    left: 25px;
+                    width: 45px;
+                    height: 35px;
+                    border: 3px solid #3d3e4c;
+                    background: #020208;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    font-size: 14px;
+                    box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+                }
+                .sad-bed {
+                    position: absolute;
+                    bottom: 15px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 160px;
+                    height: 60px;
+                    background: #5d4037; /* Wooden frame */
+                    border-radius: 4px;
+                    border-top: 6px solid #e0e0e0; /* Mattress */
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+                }
+                .bed-pillow {
+                    position: absolute;
+                    top: -14px;
+                    left: 8px;
+                    width: 28px;
+                    height: 14px;
+                    background: #fff;
+                    border-radius: 3px;
+                    border: 1px solid #ccc;
+                }
+                .bed-blanket {
+                    position: absolute;
+                    top: -6px;
+                    right: 0;
+                    width: 110px;
+                    height: 40px;
+                    background: #1a237e; /* Navy blue blanket */
+                    border-radius: 2px;
+                    border-left: 4px solid #303f9f;
+                }
+                .rahul-lying {
+                    position: absolute;
+                    top: -24px;
+                    left: 12px;
+                    width: 100px;
+                    height: 24px;
+                    display: flex;
+                    align-items: center;
+                }
+                .rahul-lying::before {
+                    content: "";
+                    position: absolute;
+                    left: 0;
+                    width: 24px;
+                    height: 24px;
+                    background: #ffd1ac; /* skin */
+                    border-radius: 4px;
+                    border: 1px solid #8d6e63;
+                }
+                .face-lying {
+                    position: absolute;
+                    left: 2px;
+                    top: 4px;
+                    font-size: 10px;
+                    display: flex;
+                    gap: 1px;
+                }
+                .beer-bottle {
+                    position: absolute;
+                    left: 30px;
+                    top: -12px;
+                    font-size: 26px;
+                    transform: rotate(50deg);
+                    animation: swayBottle 2s infinite alternate ease-in-out;
+                    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+                }
+                .pixel-speaker {
+                    position: absolute;
+                    bottom: 15px;
+                    right: 25px;
+                    width: 24px;
+                    height: 38px;
+                    background: #2b2b2b;
+                    border: 2px solid #111;
+                    border-radius: 2px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-around;
+                    align-items: center;
+                    padding: 4px 0;
+                    box-shadow: 2px 2px 0 #000;
+                }
+                .speaker-grill {
+                    width: 12px;
+                    height: 12px;
