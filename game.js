@@ -1728,3 +1728,143 @@ class GameController {
                 .speaker-grill {
                     width: 12px;
                     height: 12px;
+                    background: #000;
+                    border-radius: 50%;
+                    border: 1px solid #444;
+                }
+                .pixel-speaker::after {
+                    content: "";
+                    width: 8px;
+                    height: 8px;
+                    background: #000;
+                    border-radius: 50%;
+                    border: 1px solid #444;
+                }
+                .sound-wave {
+                    position: absolute;
+                    color: #ff3366;
+                    font-family: monospace;
+                    font-size: 14px;
+                    font-weight: bold;
+                    opacity: 0;
+                }
+                .wave-1 {
+                    right: -10px;
+                    top: 5px;
+                    animation: pulseWave 1s infinite linear;
+                }
+                .wave-2 {
+                    right: -16px;
+                    top: 2px;
+                    font-size: 18px;
+                    animation: pulseWave 1s infinite linear 0.5s;
+                }
+                .floating-lyrics {
+                    position: absolute;
+                    top: 25px;
+                    text-align: center;
+                    font-family: 'Press Start 2P', monospace;
+                    font-size: 7px;
+                    line-height: 1.6;
+                    color: #ff3366;
+                    text-shadow: 0 0 5px rgba(255, 51, 102, 0.9);
+                    width: 90%;
+                    animation: bounceLyrics 3s infinite ease-in-out;
+                }
+                @keyframes swayBottle {
+                    from { transform: rotate(35deg); }
+                    to { transform: rotate(65deg); }
+                }
+                @keyframes bounceLyrics {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-4px); }
+                }
+                @keyframes pulseWave {
+                    0% { transform: scale(0.5); opacity: 0; }
+                    50% { opacity: 0.8; }
+                    100% { transform: scale(1.2) translateX(6px); opacity: 0; }
+                }
+            </style>
+        `;
+
+        document.getElementById('ending-text').textContent = 
+            "Rahul lies on his bed in despair, clutching a cold beer bottle. Background music plays 'Channa Mereya'. He gave the notes, Chad got the girl. It's the ultimate simp tragedy...";
+    }
+
+    draw() {
+        // Clear and draw parallax background
+        this.background.draw(this.level, this.cameraX);
+
+        // If in main menu and game objects aren't initialized yet, skip drawing them
+        if (this.gameState === 'menu' || !this.player || !this.priya) {
+            return;
+        }
+
+        ctx.save();
+        // Translate view by camera scroll
+        ctx.translate(-this.cameraX, 0);
+
+        // Draw platforms
+        ctx.fillStyle = this.level === 1 ? '#1f293d' : this.level === 2 ? '#222530' : '#4a2340';
+        ctx.strokeStyle = this.level === 1 ? '#33ccff' : this.level === 2 ? '#ff3366' : '#ffcc00';
+        ctx.lineWidth = 3;
+
+        this.platforms.forEach(plat => {
+            // Draw glowing borders for platforms
+            ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+            ctx.strokeRect(plat.x, plat.y, plat.width, plat.height);
+            
+            // Draw grid line aesthetics inside platforms
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
+            ctx.fillRect(plat.x + 4, plat.y + 4, plat.width - 8, plat.height - 8);
+        });
+
+        // Draw Switches
+        this.switches.forEach(sw => sw.draw());
+
+        // Draw springboards
+        this.springboards.forEach(sb => sb.draw());
+
+        // Draw collectibles (Notes)
+        this.notes.forEach(note => note.draw());
+
+        // Draw obstacles (Dumbbells)
+        this.projectiles.forEach(proj => proj.draw());
+
+        // Draw rose petals (behind characters, above platforms)
+        if (this.level === 3 && this.rosePetals) {
+            this.rosePetals.forEach(rp => rp.draw());
+        }
+
+        // Draw Priya
+        if (this.priya) {
+            this.priya.draw();
+        }
+
+        // Draw Chad
+        if (this.chad) {
+            this.chad.draw();
+        }
+
+        // Draw Player Rahul
+        if (this.player) {
+            this.player.draw();
+        }
+
+        // Draw floating texts on top of everything!
+        this.floatingTexts.forEach(ft => ft.draw());
+
+        ctx.restore();
+    }
+}
+
+const game = new GameController();
+game.init();
+
+// --- Main Engine Loop ---
+function loop() {
+    game.update();
+    game.draw();
+    requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
