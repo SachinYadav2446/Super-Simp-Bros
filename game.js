@@ -133,3 +133,57 @@ class SoundSynthesizer {
             muteBtn.classList.add('muted');
         } else {
             muteBtn.textContent = "🔊 Sound On";
+            muteBtn.classList.remove('muted');
+            this.init();
+        }
+        return this.muted;
+    }
+
+    playTone(frequency, type, duration, slideTo = null) {
+        if (this.muted || !this.ctx) return;
+        try {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            
+            osc.type = type;
+            osc.frequency.setValueAtTime(frequency, this.ctx.currentTime);
+            
+            if (slideTo) {
+                osc.frequency.exponentialRampToValueAtTime(slideTo, this.ctx.currentTime + duration);
+            }
+            
+            gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+            
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            
+            osc.start();
+            osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {
+            console.error("Audio error", e);
+        }
+    }
+
+    playJump() {
+        this.playTone(150, 'square', 0.15, 600);
+    }
+
+    playCollect() {
+        this.playTone(523.25, 'sine', 0.1); // C5
+        setTimeout(() => this.playTone(659.25, 'sine', 0.1), 80); // E5
+        setTimeout(() => this.playTone(783.99, 'sine', 0.15), 160); // G5
+    }
+
+    playHit() {
+        this.playTone(180, 'sawtooth', 0.25, 60);
+    }
+
+    playHeartCrack() {
+        this.playTone(300, 'sawtooth', 0.4, 80);
+        setTimeout(() => this.playTone(120, 'sawtooth', 0.5), 150);
+    }
+
+    playSadMelody() {
+        if (this.muted || !this.ctx) return;
+        const notes = [293.66, 329.63, 349.23, 392.00, 349.23, 329.63, 293.66, 220.00]; // D4, E4, F4, G4, F4, E4, D4, A3 (Sad)
