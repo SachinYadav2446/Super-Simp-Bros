@@ -1065,3 +1065,63 @@ class GameController {
         this.dialogueIndex = 0;
         this.dialogueCallback = null;
 
+        this.levelWidths = [1800, 2000, 1600];
+    }
+
+    init() {
+        setupTouchEvents();
+        
+        document.getElementById('start-btn').addEventListener('click', () => {
+            sounds.init();
+            this.startGame();
+        });
+
+        document.getElementById('restart-btn').addEventListener('click', () => {
+            sounds.init();
+            this.restartGame();
+        });
+
+        document.getElementById('play-again-btn').addEventListener('click', () => {
+            sounds.init();
+            this.resetToMenu();
+        });
+
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        if (fullscreenBtn) {
+            fullscreenBtn.addEventListener('click', () => {
+                this.toggleFullscreen();
+            });
+        }
+
+        const handleFSChange = () => {
+            const isFS = document.fullscreenElement || 
+                         document.mozFullScreenElement || 
+                         document.webkitFullScreenElement || 
+                         document.msFullscreenElement;
+            const btn = document.getElementById('fullscreen-btn');
+            if (btn) {
+                btn.textContent = isFS ? "📺 Window Mode" : "📺 Fullscreen";
+            }
+        };
+        document.addEventListener('fullscreenchange', handleFSChange);
+        document.addEventListener('webkitfullscreenchange', handleFSChange);
+        document.addEventListener('mozfullscreenchange', handleFSChange);
+        document.addEventListener('MSFullscreenChange', handleFSChange);
+
+        // Skip/continue dialogs on clicking overlays (with double-tap prevention)
+        let lastDialogueTap = 0;
+        const advanceHandler = (e) => {
+            const now = Date.now();
+            if (now - lastDialogueTap < 200) return;
+            lastDialogueTap = now;
+            this.advanceDialogue();
+        };
+
+        const cutsceneOverlay = document.getElementById('cutscene-overlay');
+        cutsceneOverlay.addEventListener('click', (e) => {
+            sounds.init();
+            advanceHandler(e);
+        });
+        cutsceneOverlay.addEventListener('touchstart', (e) => {
+            sounds.init();
+            advanceHandler(e);
