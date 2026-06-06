@@ -1170,3 +1170,273 @@ class GameController {
     toggleFullscreen() {
         const container = document.querySelector('.game-container');
         if (!document.fullscreenElement &&
+            !document.mozFullScreenElement && 
+            !document.webkitFullscreenElement && 
+            !document.msFullscreenElement) {
+            const requestFS = container.requestFullscreen || 
+                              container.mozRequestFullScreen || 
+                              container.webkitRequestFullscreen || 
+                              container.msRequestFullscreen;
+            if (requestFS) {
+                requestFS.call(container).catch(err => {
+                    console.error("Error enabling fullscreen:", err);
+                });
+            }
+        } else {
+            const exitFS = document.exitFullscreen || 
+                           document.mozCancelFullScreen || 
+                           document.webkitExitFullscreen || 
+                           document.msExitFullscreen;
+            if (exitFS) {
+                exitFS.call(document);
+            }
+        }
+    }
+
+    loadLevel(levelNum) {
+        debugLog(`loadLevel(${levelNum}) called`);
+        const isNewLevel = this.level !== levelNum;
+        this.level = levelNum;
+        this.collectedNotes = 0;
+        this.projectiles = [];
+        this.switches = [];
+        this.cameraX = 0;
+
+        if (isNewLevel) {
+            this.floatingTexts = [];
+        }
+        this.springboards = [];
+        this.rosePetals = [];
+        
+        document.getElementById('hud-level').textContent = this.level;
+        this.updateHUD();
+
+        // Standard level platform arrangements
+        this.platforms = [];
+        this.notes = [];
+        this.chad = null;
+
+        const w = this.levelWidths[this.level - 1];
+
+        if (this.level === 1) {
+            this.player = new Player(50, 300);
+            this.priya = new Priya(w - 150, 320);
+
+            // Ground floor platforms
+            this.platforms.push({ x: 0, y: 380, width: 600, height: 100 });
+            this.platforms.push({ x: 700, y: 380, width: 500, height: 100 }); // Pit at 600-700
+            this.platforms.push({ x: 1300, y: 380, width: 600, height: 100 }); // Pit at 1200-1300
+
+            // Floating College Desks / Bookshelves (Adjusted gaps to make them fully solvable at speed 3.6)
+            this.platforms.push({ x: 200, y: 280, width: 120, height: 20 });
+            this.platforms.push({ x: 380, y: 220, width: 120, height: 20 });
+            this.platforms.push({ x: 540, y: 280, width: 120, height: 20 });
+            this.platforms.push({ x: 710, y: 270, width: 150, height: 20 });
+            this.platforms.push({ x: 910, y: 190, width: 120, height: 20 });
+            this.platforms.push({ x: 1080, y: 270, width: 120, height: 20 });
+            this.platforms.push({ x: 1260, y: 260, width: 120, height: 20 });
+            this.platforms.push({ x: 1430, y: 280, width: 150, height: 20 });
+
+            // Springboard textbook helper
+            this.springboards.push(new Springboard(540, 364));
+
+            // Scattered Library Notes to collect
+            this.maxNotes = 5;
+            this.notes.push(new Note(250, 240, "CHEM"));
+            this.notes.push(new Note(430, 180, "MATH"));
+            this.notes.push(new Note(780, 230, "PHYS"));
+            this.notes.push(new Note(960, 150, "BIO"));
+            this.notes.push(new Note(1480, 240, "CS"));
+
+            this.triggerCutscene(DIALOGUES.L1_START, () => {
+                debugLog("Cutscene 1 finished. Starting gameplay...");
+                this.gameState = 'playing';
+            });
+
+        } else if (this.level === 2) {
+            this.player = new Player(50, 300);
+            this.priya = new Priya(w - 250, 320);
+            this.chad = new Chad(w - 120, 310, false); // Just flexing in background
+
+            // Ground floor
+            this.platforms.push({ x: 0, y: 380, width: 400, height: 100 });
+            this.platforms.push({ x: 480, y: 380, width: 300, height: 100 });
+            this.platforms.push({ x: 880, y: 380, width: 500, height: 100 });
+            this.platforms.push({ x: 1450, y: 380, width: 600, height: 100 });
+
+            // High gym elements (Adjusted gaps to make them solvable at speed 3.6)
+            this.platforms.push({ x: 200, y: 260, width: 120, height: 20 });
+            this.platforms.push({ x: 420, y: 280, width: 120, height: 20 });
+            this.platforms.push({ x: 620, y: 220, width: 150, height: 20 });
+            this.platforms.push({ x: 850, y: 250, width: 120, height: 20 });
+            this.platforms.push({ x: 1050, y: 270, width: 120, height: 20 });
+            this.platforms.push({ x: 1240, y: 190, width: 150, height: 20 });
+            this.platforms.push({ x: 1460, y: 280, width: 150, height: 20 });
+
+            // Springboard textbook stacks
+            this.springboards.push(new Springboard(410, 364));
+            this.springboards.push(new Springboard(1380, 364));
+
+            // Scattered Protein Shakers/Notes
+            this.maxNotes = 4;
+            this.notes.push(new Note(260, 220, "GYM"));
+            this.notes.push(new Note(680, 180, "DIET"));
+            this.notes.push(new Note(1290, 150, "CALC"));
+            this.notes.push(new Note(1510, 240, "STATS"));
+
+            // Spawn bouncing kettlebell obstacles
+            this.projectiles.push(new Dumbbell(350, 350, 0, 0, false));
+            this.projectiles.push(new Dumbbell(600, 350, 0, 0, false));
+            this.projectiles.push(new Dumbbell(950, 350, 0, 0, false));
+            this.projectiles.push(new Dumbbell(1350, 350, 0, 0, false));
+
+            this.triggerCutscene(DIALOGUES.L2_START, () => {
+                debugLog("Cutscene 2 finished. Starting gameplay...");
+                this.gameState = 'playing';
+            });
+
+        } else if (this.level === 3) {
+            // Boss Battle Level!
+            this.player = new Player(50, 300);
+            this.priya = new Priya(w - 120, 200);
+            this.chad = new Chad(w - 300, 300, true); // BOSS!
+
+            // Ground floor
+            this.platforms.push({ x: 0, y: 380, width: 1600, height: 100 });
+
+            // Raised platform hierarchy for Boss Arena
+            this.platforms.push({ x: 400, y: 280, width: 200, height: 20 });
+            this.platforms.push({ x: 700, y: 220, width: 250, height: 20 });
+            this.platforms.push({ x: 1100, y: 280, width: 200, height: 20 });
+            this.platforms.push({ x: 1350, y: 200, width: 200, height: 20 }); // Priya stands here
+
+            // The red Switch to drop notes on Chad
+            this.switches.push(new Switch(800, 200));
+
+            this.maxNotes = 0; // Boss Level doesn't require notes
+
+            // Spawn 25 falling rose petals
+            this.rosePetals = [];
+            for (let i = 0; i < 25; i++) {
+                this.rosePetals.push(new RosePetal());
+            }
+
+            this.triggerCutscene(DIALOGUES.L3_START, () => {
+                debugLog("Cutscene 3 finished. Starting gameplay...");
+                this.gameState = 'playing';
+            });
+        }
+    }
+
+    resetLevel() {
+        this.hope -= 20; // Lose hope when you die!
+        this.updateHUD();
+        if (this.hope <= 0) {
+            this.gameOver("Rahul ran out of Hope. Priya is dating Chad now.");
+        } else {
+            this.loadLevel(this.level);
+        }
+    }
+
+    gameOver(reason) {
+        this.gameState = 'gameover';
+        sounds.playSadMelody();
+        document.getElementById('game-over-reason').textContent = reason;
+        const gameOverScreen = document.getElementById('game-over-screen');
+        gameOverScreen.classList.remove('hidden');
+        gameOverScreen.classList.add('active');
+    }
+
+    triggerCutscene(dialogues, callback) {
+        debugLog(`triggerCutscene() with ${dialogues.length} lines`);
+        this.gameState = 'cutscene';
+        this.currentDialogueList = dialogues;
+        this.dialogueIndex = 0;
+        this.dialogueCallback = callback;
+        
+        document.getElementById('cutscene-overlay').classList.remove('hidden');
+        this.showDialogueLine();
+    }
+
+    showDialogueLine() {
+        debugLog(`showDialogueLine() index ${this.dialogueIndex}`);
+        const line = this.currentDialogueList[this.dialogueIndex];
+        const nameElem = document.getElementById('dialogue-name');
+        const textElem = document.getElementById('dialogue-text-content');
+        const avatar = document.getElementById('dialogue-avatar');
+
+        nameElem.textContent = line.name;
+        textElem.textContent = line.text;
+
+        // Custom style depending on speaker
+        if (line.name === "Rahul") {
+            nameElem.style.color = "var(--neon-blue)";
+            avatar.style.borderColor = "var(--neon-blue)";
+            // Programmatically draw red circle avatar for Rahul
+            avatar.style.backgroundColor = "#e63946";
+        } else if (line.name === "Priya") {
+            nameElem.style.color = "#ff85a2";
+            avatar.style.borderColor = "#ff85a2";
+            avatar.style.backgroundColor = "#ff85a2";
+        } else {
+            nameElem.style.color = "var(--neon-purple)";
+            avatar.style.borderColor = "var(--neon-purple)";
+            avatar.style.backgroundColor = "#1b1b1f";
+        }
+    }
+
+    advanceDialogue() {
+        debugLog(`advanceDialogue() current index ${this.dialogueIndex}`);
+        this.dialogueIndex++;
+        if (this.dialogueIndex < this.currentDialogueList.length) {
+            this.showDialogueLine();
+        } else {
+            debugLog("All dialogues shown. Hiding overlay & executing callback.");
+            document.getElementById('cutscene-overlay').classList.add('hidden');
+            if (this.dialogueCallback) {
+                this.dialogueCallback();
+            }
+        }
+    }
+
+    updateHUD() {
+        document.getElementById('hud-notes').textContent = `${this.collectedNotes}/${this.maxNotes}`;
+        document.getElementById('hud-hope-bar').style.width = `${this.hope}%`;
+    }
+
+    update() {
+        if (this.gameState !== 'playing') return;
+
+        // Update player
+        const bounds = this.levelWidths[this.level - 1];
+        this.player.update(this.platforms, bounds, this.springboards);
+
+        // Update camera position to follow player
+        this.cameraX = this.player.x - GAME_WIDTH / 4;
+        if (this.cameraX < 0) this.cameraX = 0;
+        if (this.cameraX > bounds - GAME_WIDTH) this.cameraX = bounds - GAME_WIDTH;
+
+        // Update Springboards (Trampolines) active states
+        this.springboards.forEach(sb => {
+            if (sb.activated) {
+                sb.activeTimer--;
+                if (sb.activeTimer <= 0) sb.activated = false;
+            }
+        });
+
+        // Update Floating text juice
+        for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
+            this.floatingTexts[i].update();
+            if (this.floatingTexts[i].life <= 0) {
+                this.floatingTexts.splice(i, 1);
+            }
+        }
+
+        // Update falling rose petals
+        if (this.level === 3 && this.rosePetals) {
+            this.rosePetals.forEach(rp => rp.update());
+        }
+
+        // Update Chad (if present)
+        if (this.chad) {
+            this.chad.update(this.platforms);
