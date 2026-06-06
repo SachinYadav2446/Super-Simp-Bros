@@ -365,3 +365,188 @@ class Player {
                         this.x = plat.x + plat.width;
                     }
                     this.vx = 0;
+                }
+            }
+        });
+
+        // World Bounds
+        if (this.x < 0) this.x = 0;
+        if (this.x > bounds - this.width) this.x = bounds - this.width;
+
+        // Falling down pit
+        if (this.y > GAME_HEIGHT) {
+            this.die();
+        }
+
+        // Animation counter
+        if (this.isMoving && this.grounded) {
+            this.animationTimer += 0.15;
+        } else {
+            this.animationTimer = 0;
+        }
+    }
+
+    die() {
+        sounds.playHit();
+        game.resetLevel();
+    }
+
+    draw() {
+        ctx.save();
+        ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
+        
+        // Flip image if facing left
+        if (this.facing === 'left') {
+            ctx.scale(-1, 1);
+        }
+
+        // Draw Rahul
+        // Bobbing effect when walking
+        let walkBob = 0;
+        if (this.isMoving && this.grounded) {
+            walkBob = Math.sin(this.animationTimer) * 3;
+        }
+
+        // 1. Legs / Shoes (Blue Jeans, Brown Shoes)
+        ctx.fillStyle = '#4a2c11'; // Shoes
+        let legOffset = (Math.sin(this.animationTimer) * 4);
+        ctx.fillRect(-12, 16 + (this.isMoving ? legOffset : 0), 8, 8);
+        ctx.fillRect(4, 16 + (this.isMoving ? -legOffset : 0), 8, 8);
+
+        ctx.fillStyle = '#2c406c'; // Jeans
+        ctx.fillRect(-12, 6, 8, 11);
+        ctx.fillRect(4, 6, 8, 11);
+
+        // 2. Body / Red Hoodie
+        ctx.fillStyle = '#e63946'; // Red hoodie body
+        ctx.fillRect(-14, -14, 28, 20);
+
+        // Draw hood string / zipper
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(-1, -10, 2, 8);
+
+        // 3. Face
+        ctx.fillStyle = '#ffd1ac'; // Skin tone
+        ctx.fillRect(-10, -32, 20, 18);
+
+        // 4. Glasses (Rahul's signature look!)
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 2.5;
+        ctx.strokeRect(-8, -25, 7, 7);
+        ctx.strokeRect(1, -25, 7, 7);
+        ctx.beginPath();
+        ctx.moveTo(-1, -21);
+        ctx.lineTo(1, -21);
+        ctx.stroke();
+
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(-5, -23, 2, 2); // Left eye dot
+        ctx.fillRect(4, -23, 2, 2); // Right eye dot
+
+        // 5. Hair (Fluffy black hair)
+        ctx.fillStyle = '#111116';
+        ctx.fillRect(-12, -37, 24, 8);
+        ctx.fillRect(-12, -32, 4, 10); // sideburns
+
+        // 6. Carrying details (Class Notes strap/bag)
+        ctx.strokeStyle = '#8b5a2b';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-14, -10);
+        ctx.lineTo(14, 4);
+        ctx.stroke();
+
+        // Bobbing adjustment for head items
+        if (walkBob) {
+            ctx.fillStyle = '#ffffff';
+        }
+
+        ctx.restore();
+    }
+}
+
+class Priya {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.width = 32;
+        this.height = 48;
+        this.floatOffset = 0;
+    }
+
+    draw() {
+        this.floatOffset = Math.sin(Date.now() * 0.003) * 3;
+        ctx.save();
+        ctx.translate(this.x + this.width/2, this.y + this.height/2 + this.floatOffset);
+
+        // Hair (Long Brown Hair)
+        ctx.fillStyle = '#5c3d24';
+        ctx.fillRect(-14, -30, 28, 38);
+
+        // Skin / Face
+        ctx.fillStyle = '#ffe0bd';
+        ctx.fillRect(-10, -30, 20, 16);
+
+        // Eyes (Cute blink effect occasionally)
+        ctx.fillStyle = '#3c220f';
+        const blink = Math.sin(Date.now() * 0.001) > 0.98;
+        if (!blink) {
+            ctx.fillRect(-6, -24, 3, 3);
+            ctx.fillRect(3, -24, 3, 3);
+        }
+
+        // Cute blush
+        ctx.fillStyle = '#ff8fa3';
+        ctx.fillRect(-9, -20, 3, 2);
+        ctx.fillRect(6, -20, 3, 2);
+
+        // Cute Outfit (Pink/Violet Dress)
+        ctx.fillStyle = '#ff85a2'; // Pink dress top
+        ctx.fillRect(-12, -14, 24, 15);
+        ctx.fillStyle = '#f72585'; // Skirt part
+        ctx.fillRect(-14, 1, 28, 17);
+
+        // Shoes
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(-10, 18, 6, 6);
+        ctx.fillRect(4, 18, 6, 6);
+
+        // Floating Hearts above Priya
+        if (Math.sin(Date.now() * 0.002) > 0) {
+            ctx.fillStyle = '#ff3366';
+            ctx.beginPath();
+            ctx.arc(-8, -45, 3, 0, Math.PI, true);
+            ctx.arc(-2, -45, 3, 0, Math.PI, true);
+            ctx.lineTo(-5, -39);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        ctx.restore();
+    }
+}
+
+class Chad {
+    constructor(x, y, isBoss = false) {
+        this.x = x;
+        this.y = y;
+        this.width = isBoss ? 60 : 36;
+        this.height = isBoss ? 80 : 54;
+        this.isBoss = isBoss;
+        this.flexTimer = 0;
+        this.throwTimer = 0;
+        this.bossHp = 3;
+        this.vy = 0;
+        this.vx = isBoss ? 2 : 0;
+    }
+
+    update(platforms) {
+        if (!this.isBoss) return;
+
+        // Boss Movement / Patrol
+        this.x += this.vx;
+        if (this.x < 450 || this.x > GAME_WIDTH - this.width - 20) {
+            this.vx = -this.vx;
+        }
+
+        // Throws dumbbells
