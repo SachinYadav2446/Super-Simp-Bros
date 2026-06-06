@@ -187,3 +187,108 @@ class SoundSynthesizer {
     playSadMelody() {
         if (this.muted || !this.ctx) return;
         const notes = [293.66, 329.63, 349.23, 392.00, 349.23, 329.63, 293.66, 220.00]; // D4, E4, F4, G4, F4, E4, D4, A3 (Sad)
+        let time = 0;
+        notes.forEach((freq, index) => {
+            setTimeout(() => {
+                this.playTone(freq, 'triangle', index === notes.length - 1 ? 1.0 : 0.4);
+            }, time);
+            time += index === notes.length - 1 ? 500 : 350;
+        });
+    }
+
+    playVictoryJingle() {
+        if (this.muted || !this.ctx) return;
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((freq, idx) => {
+            setTimeout(() => {
+                this.playTone(freq, 'sine', 0.25);
+            }, idx * 150);
+        });
+    }
+}
+
+const sounds = new SoundSynthesizer();
+
+// --- Game Engine Configuration ---
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+const GAME_WIDTH = 800;
+const GAME_HEIGHT = 450;
+
+// Input system
+const keys = {
+    right: false,
+    left: false,
+    jump: false,
+    interact: false
+};
+
+// Touch Controls
+function setupTouchEvents() {
+    const btnLeft = document.getElementById('btn-left');
+    const btnRight = document.getElementById('btn-right');
+    const btnJump = document.getElementById('btn-jump');
+
+    const triggerTouch = (elem, keyName, state) => {
+        elem.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            sounds.init();
+            keys[keyName] = state;
+        });
+        elem.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            keys[keyName] = !state;
+        });
+    };
+
+    triggerTouch(btnLeft, 'left', true);
+    triggerTouch(btnRight, 'right', true);
+    triggerTouch(btnJump, 'jump', true);
+}
+
+// Keyboard controls
+window.addEventListener('keydown', (e) => {
+    sounds.init();
+    if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
+    if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
+    if (e.code === 'ArrowUp' || e.code === 'KeyW' || e.code === 'Space') keys.jump = true;
+    if (e.code === 'KeyE') keys.interact = true;
+});
+
+window.addEventListener('keyup', (e) => {
+    if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
+    if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = false;
+    if (e.code === 'ArrowUp' || e.code === 'KeyW' || e.code === 'Space') keys.jump = false;
+    if (e.code === 'KeyE') keys.interact = false;
+});
+
+// Setup audio UI button
+document.getElementById('mute-btn').addEventListener('click', () => {
+    sounds.toggleMute();
+});
+
+// --- Entities Classes ---
+
+class Player {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.width = 32;
+        this.height = 48;
+        this.vx = 0;
+        this.vy = 0;
+        this.speed = 3.6; // Restored to 3.6 for solvable jumps
+        this.jumpForce = -12.0; // Restored to -12.0 for solvable jumps
+        this.grounded = false;
+        this.facing = 'right';
+        this.animationTimer = 0;
+        this.isMoving = false;
+    }
+
+    update(platforms, bounds, springboards = []) {
+        // Horizontal movement
+        this.isMoving = false;
+        if (keys.left) {
+            this.vx = -this.speed;
+            this.facing = 'left';
