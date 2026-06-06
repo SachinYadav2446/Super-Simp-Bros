@@ -128,3 +128,131 @@ body {
 }
 
 /* Game Canvas with retro filter overlay */
+#gameCanvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+}
+
+/* Screen Overlays */
+.overlay-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 20;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(4, 5, 8, 0.85);
+    backdrop-filter: blur(8px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.overlay-screen.active {
+    opacity: 1;
+    pointer-events: all;
+    transform: scale(1);
+}
+
+.overlay-screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.95);
+}
+
+/* Glassmorphism Card Style */
+.glass-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    background-image: linear-gradient(135deg, var(--glass-shine), transparent);
+    box-shadow: 
+        0 8px 32px 0 rgba(0, 0, 0, 0.5),
+        inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 30px;
+    width: 85%;
+    max-width: 500px;
+    text-align: center;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    animation: cardFloat 4s ease-in-out infinite;
+}
+
+/* Neon Glows */
+.neon-red {
+    color: var(--neon-red);
+    text-shadow: 0 0 10px rgba(255, 51, 102, 0.6);
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+.neon-gold {
+    color: var(--neon-gold);
+    text-shadow: 0 0 10px rgba(255, 204, 0, 0.6);
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+}
+
+.story-teaser {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #b0b3c1;
+    margin-bottom: 25px;
+    font-style: italic;
+}
+
+/* Controls Instructions */
+.instructions-box {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 25px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.control-guide {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.control-guide .label {
+    font-size: 0.65rem;
+    color: var(--neon-blue);
+}
+
+.control-guide .value {
+    font-size: 0.85rem;
+    color: #fff;
+    font-weight: 600;
+}
+
+/* Arcade Buttons */
+.arcade-btn {
+    background: linear-gradient(135deg, var(--neon-purple), #7928ca);
+    border: none;
+    color: #fff;
+    padding: 14px 28px;
+    font-size: 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 
+        0 4px 15px rgba(153, 51, 255, 0.4),
+        0 0 0 2px rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.arcade-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+        0 6px 20px rgba(153, 51, 255, 0.6),
+        0 0 0 2px rgba(255, 255, 255, 0.2);

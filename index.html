@@ -64,3 +64,50 @@
                 </div>
             </div>
 
+            <!-- Dialogue / Cutscene Overlay -->
+            <div id="cutscene-overlay" class="cutscene-overlay hidden">
+                <div class="dialogue-box glass-card">
+                    <div class="speaker-avatar" id="dialogue-avatar"></div>
+                    <div class="dialogue-content">
+                        <span class="speaker-name pixel-text" id="dialogue-name">Rahul</span>
+                        <p class="dialogue-text" id="dialogue-text-content">...</p>
+                    </div>
+                    <div class="dialogue-footer">
+                        <span class="pixel-text blink">Press Space / Tap to continue</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HUD Overlay -->
+            <div id="hud" class="hud-overlay hidden">
+                <div class="hud-item">
+                    <span class="pixel-text label">LEVEL:</span>
+                    <span id="hud-level" class="pixel-text value">1</span>
+                </div>
+                <div class="hud-item">
+                    <span class="pixel-text label">NOTES:</span>
+                    <span id="hud-notes" class="pixel-text value">0/5</span>
+                </div>
+                <div class="hud-item">
+                    <span class="pixel-text label">HOPE:</span>
+                    <div class="hope-bar-container">
+                        <div id="hud-hope-bar" class="hope-bar" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- The Game Canvas -->
+            <canvas id="gameCanvas" width="800" height="450"></canvas>
+        </div>
+
+        <!-- Touch Controls for Mobile -->
+        <div class="mobile-controls">
+            <div class="dpad">
+                <button id="btn-left" class="control-btn pixel-text">◀</button>
+                <button id="btn-right" class="control-btn pixel-text">▶</button>
+            </div>
+            <div class="action-buttons">
+                <button id="btn-jump" class="control-btn jump-btn pixel-text">JUMP</button>
+            </div>
+        </div>
+
