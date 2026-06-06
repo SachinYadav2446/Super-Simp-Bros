@@ -1125,3 +1125,48 @@ class GameController {
         cutsceneOverlay.addEventListener('touchstart', (e) => {
             sounds.init();
             advanceHandler(e);
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && this.gameState === 'cutscene') {
+                advanceHandler(e);
+            }
+        });
+    }
+
+    startGame() {
+        debugLog("startGame() triggered");
+        sounds.clearSadSong();
+        const menu = document.getElementById('menu-screen');
+        menu.classList.add('hidden');
+        menu.classList.remove('active');
+        document.getElementById('hud').classList.remove('hidden');
+        this.level = 1;
+        this.hope = 100;
+        this.loadLevel(1);
+    }
+
+    restartGame() {
+        sounds.clearSadSong();
+        const gameOverScreen = document.getElementById('game-over-screen');
+        gameOverScreen.classList.add('hidden');
+        gameOverScreen.classList.remove('active');
+        this.hope = 100;
+        this.loadLevel(this.level);
+    }
+
+    resetToMenu() {
+        sounds.clearSadSong();
+        const victoryScreen = document.getElementById('victory-screen');
+        victoryScreen.classList.add('hidden');
+        victoryScreen.classList.remove('active');
+        const menuScreen = document.getElementById('menu-screen');
+        menuScreen.classList.remove('hidden');
+        menuScreen.classList.add('active');
+        document.getElementById('hud').classList.add('hidden');
+        this.gameState = 'menu';
+    }
+
+    toggleFullscreen() {
+        const container = document.querySelector('.game-container');
+        if (!document.fullscreenElement &&
