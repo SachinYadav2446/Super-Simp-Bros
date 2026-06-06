@@ -676,3 +676,230 @@ class Note {
 
         // Spirals on side
         ctx.fillStyle = '#cfd4da';
+        for (let i = -10; i <= 10; i += 5) {
+            ctx.fillRect(-14, i, 4, 2);
+        }
+
+        // Inside joke scribble notes
+        ctx.strokeStyle = '#8f939c';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(-5, -6); ctx.lineTo(7, -6);
+        ctx.moveTo(-5, -1); ctx.lineTo(5, -1);
+        ctx.moveTo(-5, 4); ctx.lineTo(8, 4);
+        ctx.stroke();
+
+        // Tiny text cover details
+        ctx.fillStyle = '#ff0055';
+        ctx.font = '6px Arial';
+        ctx.fillText(this.label, -7, -8);
+
+        ctx.restore();
+    }
+}
+
+class Dumbbell {
+    constructor(x, y, vx, vy, roll = false) {
+        this.x = x;
+        this.y = y;
+        this.width = 20;
+        this.height = 12;
+        this.vx = vx;
+        this.vy = vy;
+        this.roll = roll;
+        this.angle = 0;
+    }
+
+    update(platforms) {
+        this.x += this.vx;
+        this.y += this.vy;
+
+        if (this.roll) {
+            this.angle += 0.15;
+            this.vy += 0.5; // Gravity
+
+            platforms.forEach(plat => {
+                if (this.x < plat.x + plat.width &&
+                    this.x + this.width > plat.x &&
+                    this.y + this.height > plat.y &&
+                    this.y < plat.y + plat.height) {
+                    this.y = plat.y - this.height;
+                    this.vy = 0;
+                }
+            });
+        }
+    }
+
+    draw() {
+        ctx.save();
+        ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
+        if (this.roll) {
+            ctx.rotate(this.angle);
+        }
+
+        // Draw Dumbbell
+        ctx.fillStyle = '#333';
+        // Left Weight
+        ctx.fillRect(-12, -8, 6, 16);
+        // Right Weight
+        ctx.fillRect(6, -8, 6, 16);
+        // Handle
+        ctx.fillStyle = '#aaa';
+        ctx.fillRect(-6, -2, 12, 4);
+
+        ctx.restore();
+    }
+}
+
+class Switch {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.width = 40;
+        this.height = 20;
+        this.pressed = false;
+    }
+
+    draw() {
+        ctx.fillStyle = '#555';
+        ctx.fillRect(this.x, this.y + 10, this.width, 10); // Base
+
+        ctx.fillStyle = this.pressed ? '#2ecc71' : '#e74c3c'; // Green if pressed, red if not
+        let btnH = this.pressed ? 4 : 10;
+        ctx.fillRect(this.x + 8, this.y + 20 - btnH - 10, this.width - 16, btnH);
+
+        // Switch Text
+        ctx.fillStyle = '#fff';
+        ctx.font = '6px "Press Start 2P"';
+        ctx.fillText("NOTES EXAM", this.x - 12, this.y - 4);
+    }
+}
+
+// --- Floating Text Juice effect ---
+class FloatingText {
+    constructor(x, y, text, color) {
+        this.x = x;
+        this.y = y;
+        this.text = text;
+        this.color = color;
+        this.life = 60; // 1 second lifespan
+        this.vy = -1.2;
+    }
+    update() {
+        this.y += this.vy;
+        this.life--;
+    }
+    draw() {
+        ctx.save();
+        ctx.fillStyle = this.color;
+        ctx.font = '8px "Press Start 2P"';
+        ctx.globalAlpha = this.life / 60;
+        ctx.shadowColor = '#000';
+        ctx.shadowBlur = 4;
+        ctx.fillText(this.text, this.x, this.y);
+        ctx.restore();
+    }
+}
+
+// --- Trampoline / Textbook springboards ---
+class Springboard {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.width = 32;
+        this.height = 16;
+        this.activated = false;
+        this.activeTimer = 0;
+    }
+    draw() {
+        ctx.save();
+        // Draw bottom wood base
+        ctx.fillStyle = '#8b5a2b';
+        ctx.fillRect(this.x, this.y + 10, this.width, 6);
+        
+        // Draw spring metal lines
+        ctx.strokeStyle = '#aaa';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(this.x + 8, this.y + 10);
+        ctx.lineTo(this.x + 12, this.activated ? this.y + 6 : this.y + 2);
+        ctx.lineTo(this.x + 20, this.activated ? this.y + 6 : this.y + 2);
+        ctx.lineTo(this.x + 24, this.y + 10);
+        ctx.stroke();
+
+        // Draw top bounce plate (looks like stack of study guides)
+        ctx.fillStyle = this.activated ? '#ff3366' : '#2ecc71';
+        ctx.fillRect(this.x + 2, this.activated ? this.y + 6 : this.y + 1, this.width - 4, 5);
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(this.x + 4, this.activated ? this.y + 7 : this.y + 2, this.width - 8, 2); // pages texture
+        
+        ctx.restore();
+    }
+}
+
+// --- Falling Rose Petals for Sunset Castle ---
+class RosePetal {
+    constructor() {
+        this.x = Math.random() * GAME_WIDTH;
+        this.y = Math.random() * -GAME_HEIGHT;
+        this.size = Math.random() * 4 + 2;
+        this.speedY = Math.random() * 1 + 0.6;
+        this.speedX = Math.sin(Math.random() * 2) * 0.4;
+        this.angle = Math.random() * Math.PI;
+    }
+    update() {
+        this.y += this.speedY;
+        this.x += this.speedX;
+        this.angle += 0.02;
+        if (this.y > GAME_HEIGHT) {
+            this.y = -10;
+            this.x = Math.random() * GAME_WIDTH;
+        }
+    }
+    draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+        ctx.fillStyle = '#ff4a75';
+        ctx.beginPath();
+        // draw a petal shape
+        ctx.ellipse(0, 0, this.size, this.size * 0.6, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    }
+}
+
+// --- Parallax Background Class ---
+class ParallaxBackground {
+    constructor() {
+        this.stars = [];
+        for (let i = 0; i < 40; i++) {
+            this.stars.push({
+                x: Math.random() * GAME_WIDTH,
+                y: Math.random() * GAME_HEIGHT * 0.6,
+                size: Math.random() * 2 + 1,
+                alpha: Math.random()
+            });
+        }
+    }
+
+    draw(level, scrollX) {
+        ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+        if (level === 1) {
+            // Level 1: College Corridor (Blueprint Purple Gradient)
+            let grad = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT);
+            grad.addColorStop(0, '#12122b');
+            grad.addColorStop(1, '#080816');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+            // Draw floating blackboard layers in parallax with custom chalk doodles!
+            ctx.strokeStyle = '#5c4033'; // wood frame
+            ctx.lineWidth = 3;
+            for (let i = 0; i < 4; i++) {
+                let bx = 120 + i * 500 - (scrollX * 0.25) % 2000;
+                ctx.fillStyle = '#103020'; // chalkboard green
+                ctx.fillRect(bx, 60, 160, 90);
+                ctx.strokeRect(bx, 60, 160, 90);
+                
