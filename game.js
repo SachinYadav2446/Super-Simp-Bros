@@ -550,3 +550,129 @@ class Chad {
         }
 
         // Throws dumbbells
+        this.throwTimer++;
+        if (this.throwTimer > 120) { // Every 2 seconds
+            this.throwTimer = 0;
+            // Spawn rolling dumbbell
+            game.projectiles.push(new Dumbbell(this.x, this.y + 20, -4, 0, true));
+            sounds.playHit();
+        }
+
+        // Apply simple physics
+        this.vy += 0.5;
+        this.y += this.vy;
+
+        platforms.forEach(plat => {
+            if (this.x < plat.x + plat.width &&
+                this.x + this.width > plat.x &&
+                this.y + this.height > plat.y &&
+                this.y < plat.y + plat.height) {
+                this.y = plat.y - this.height;
+                this.vy = 0;
+            }
+        });
+    }
+
+    draw() {
+        this.flexTimer += 0.05;
+        let flexScale = 1 + Math.sin(this.flexTimer) * 0.04;
+
+        ctx.save();
+        ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
+        ctx.scale(flexScale, flexScale);
+
+        // Huge Buff Shoulders / Arms
+        ctx.fillStyle = '#f0c294'; // Skin tone
+        // Left arm flexing
+        ctx.fillRect(-this.width/2 - 8, -this.height/4, 12, 25);
+        ctx.fillStyle = '#000';
+        ctx.fillRect(-this.width/2 - 10, -this.height/4 - 10, 16, 8); // Gym sweatband / weight
+
+        // Right arm flexing
+        ctx.fillStyle = '#f0c294';
+        ctx.fillRect(this.width/2 - 4, -this.height/4, 12, 25);
+
+        // Buff Torso / Black Gym Stringer Tank Top
+        ctx.fillStyle = '#1b1b1f'; // Stringer
+        ctx.fillRect(-this.width/2 + 2, -this.height/3, this.width - 4, this.height/2);
+
+        // Straps
+        ctx.fillRect(-this.width/3, -this.height/3 - 6, 6, 8);
+        ctx.fillRect(this.width/3 - 6, -this.height/3 - 6, 6, 8);
+
+        // Chest / Neck skin area
+        ctx.fillStyle = '#f0c294';
+        ctx.fillRect(-this.width/4, -this.height/3, this.width/2, 6);
+
+        // Face
+        ctx.fillRect(-this.width/4, -this.height/2 - 8, this.width/2, 20);
+        // Cool beard / jawline
+        ctx.fillStyle = '#333333';
+        ctx.fillRect(-this.width/4, -this.height/2 + 4, this.width/2, 8);
+
+        // Cool sunglasses (Chad's signature flexing look)
+        ctx.fillStyle = '#111';
+        ctx.fillRect(-this.width/5 - 1, -this.height/2 - 2, 7, 5);
+        ctx.fillRect(this.width/10, -this.height/2 - 2, 7, 5);
+        ctx.fillRect(-this.width/5, -this.height/2 - 1, this.width/2.5, 2); // Bridge
+
+        // Spiky Gym Hair
+        ctx.fillStyle = '#222';
+        ctx.fillRect(-this.width/4 - 2, -this.height/2 - 14, this.width/2 + 4, 8);
+        // Spike details
+        ctx.beginPath();
+        ctx.moveTo(-this.width/4, -this.height/2 - 14);
+        ctx.lineTo(-this.width/6, -this.height/2 - 20);
+        ctx.lineTo(0, -this.height/2 - 14);
+        ctx.lineTo(this.width/6, -this.height/2 - 20);
+        ctx.lineTo(this.width/4, -this.height/2 - 14);
+        ctx.fill();
+
+        // Legs / Gray Sweatpants
+        ctx.fillStyle = '#55555c';
+        ctx.fillRect(-this.width/3, this.height/6, this.width/3, this.height/3);
+        ctx.fillRect(2, this.height/6, this.width/3, this.height/3);
+
+        // Shoes
+        ctx.fillStyle = '#00f'; // Bright gym sneakers
+        ctx.fillRect(-this.width/3 - 2, this.height/2 - 4, this.width/3, 8);
+        ctx.fillRect(2, this.height/2 - 4, this.width/3, 8);
+
+        // Boss Health Bar above head
+        if (this.isBoss) {
+            ctx.fillStyle = '#333';
+            ctx.fillRect(-30, -this.height/2 - 32, 60, 6);
+            ctx.fillStyle = '#ff3366';
+            ctx.fillRect(-30, -this.height/2 - 32, 20 * this.bossHp, 6);
+        }
+
+        ctx.restore();
+    }
+}
+
+class Note {
+    constructor(x, y, label) {
+        this.x = x;
+        this.y = y;
+        this.width = 24;
+        this.height = 28;
+        this.label = label;
+        this.collected = false;
+        this.bob = 0;
+    }
+
+    draw() {
+        if (this.collected) return;
+        this.bob = Math.sin(Date.now() * 0.005) * 4;
+
+        ctx.save();
+        ctx.translate(this.x + this.width/2, this.y + this.height/2 + this.bob);
+
+        // Note Book Spine / Base
+        ctx.fillStyle = '#3a86c8'; // Blue cover
+        ctx.fillRect(-12, -14, 24, 28);
+        ctx.fillStyle = '#e5e9f0'; // Pages
+        ctx.fillRect(-9, -12, 20, 24);
+
+        // Spirals on side
+        ctx.fillStyle = '#cfd4da';
