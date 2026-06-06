@@ -454,3 +454,250 @@ body {
         inset 0 1px 1px rgba(255,255,255,0.2);
     font-size: 0.65rem;
 }
+
+.jump-btn:active {
+    background: linear-gradient(180deg, #ff0044, #8a0022);
+    border-color: #ff80a0;
+    box-shadow: 
+        0 2px 4px rgba(0,0,0,0.4),
+        0 0 15px rgba(255, 51, 102, 0.6);
+}
+
+/* Control Panel (Sound & Fullscreen) */
+.control-panel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 8px 24px;
+    border-radius: 20px;
+    margin-top: 5px;
+    animation: none;
+}
+
+.control-btn-small {
+    background: none;
+    border: none;
+    color: #b0b3c1;
+    font-size: 0.8rem;
+    font-family: var(--font-sans);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.control-btn-small:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.control-btn-small:active {
+    transform: scale(0.95);
+}
+
+.game-footer {
+    font-size: 0.8rem;
+    color: #62657a;
+    margin-top: 10px;
+}
+
+/* Victory Cinema Block */
+.final-ending-card {
+    max-width: 600px;
+    width: 90%;
+}
+
+.cinema-display {
+    width: 100%;
+    height: 180px;
+    background: #101015;
+    border-radius: 8px;
+    border: 2px solid var(--neon-red);
+    margin-bottom: 15px;
+    position: relative;
+    overflow: hidden;
+}
+
+.ending-dialogue {
+    padding: 15px;
+    margin-bottom: 20px;
+    animation: none;
+    background: rgba(0,0,0,0.4);
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ending-dialogue p {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #ffb8d1;
+    font-style: italic;
+}
+
+/* Animations */
+@keyframes pulseGlow {
+    from {
+        text-shadow: 
+            0 0 5px #fff,
+            0 0 10px var(--neon-purple),
+            0 0 20px var(--neon-purple);
+    }
+    to {
+        text-shadow: 
+            0 0 5px #fff,
+            0 0 15px var(--neon-purple),
+            0 0 30px var(--neon-purple),
+            0 0 50px var(--neon-blue);
+    }
+}
+
+@keyframes cardFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+.blink {
+    animation: blinker 1.2s linear infinite;
+}
+
+@keyframes blinker {
+    50% { opacity: 0; }
+}
+
+.text-shake {
+    animation: shake 0.5s infinite alternate;
+}
+
+@keyframes shake {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    10% { transform: translate(-1px, -2px) rotate(-1deg); }
+    20% { transform: translate(-3px, 0px) rotate(1deg); }
+    30% { transform: translate(0px, 2px) rotate(0deg); }
+    40% { transform: translate(1px, -1px) rotate(1deg); }
+    50% { transform: translate(-1px, 2px) rotate(-1deg); }
+    60% { transform: translate(-3px, 1px) rotate(0deg); }
+    70% { transform: translate(2px, 1px) rotate(-1deg); }
+    80% { transform: translate(-1px, -1px) rotate(1deg); }
+    90% { transform: translate(2px, 2px) rotate(0deg); }
+    100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+/* Media Queries for Mobile Screens */
+@media (max-width: 768px) {
+    body {
+        padding: 5px;
+    }
+    
+    .logo-glow {
+        font-size: 1.3rem;
+    }
+    
+    .subtitle {
+        font-size: 0.75rem;
+        letter-spacing: 4px;
+    }
+
+    .arcade-wrapper {
+        gap: 6px;
+    }
+
+    .game-container {
+        max-height: calc(100vh - 215px);
+    }
+
+    .glass-card {
+        padding: 18px;
+    }
+
+    .neon-red {
+        font-size: 0.9rem;
+        margin-bottom: 12px;
+    }
+
+    .story-teaser {
+        font-size: 0.8rem;
+        margin-bottom: 15px;
+    }
+
+    .instructions-box {
+        padding: 10px;
+        margin-bottom: 15px;
+    }
+
+    .control-guide .value {
+        font-size: 0.75rem;
+    }
+
+    .arcade-btn {
+        padding: 10px 18px;
+        font-size: 0.65rem;
+    }
+
+    /* Show Mobile D-pad and buttons */
+    .mobile-controls {
+        display: flex;
+    }
+
+    .game-container::after {
+        opacity: 0.25;
+    }
+
+    .game-footer {
+        display: none;
+    }
+}
+
+/* Fullscreen mode styles */
+.game-container:fullscreen {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+    max-height: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #000 !important;
+    padding: 0 !important;
+}
+
+.game-container:fullscreen #gameCanvas {
+    width: auto !important;
+    height: 100% !important;
+    max-height: 100vh !important;
+    aspect-ratio: 16 / 9 !important;
+    object-fit: contain !important;
+}
+
+/* For older Webkit browsers compatibility */
+.game-container:-webkit-full-screen {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+    max-height: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #000 !important;
+    padding: 0 !important;
+}
+
+.game-container:-webkit-full-screen #gameCanvas {
+    width: auto !important;
+    height: 100% !important;
+    max-height: 100vh !important;
+    aspect-ratio: 16 / 9 !important;
+    object-fit: contain !important;
+}

@@ -1494,3 +1494,57 @@ class GameController {
                 this.player.y < note.y + note.height &&
                 this.player.y + this.player.height > note.y) {
                 
+                note.collected = true;
+                this.collectedNotes++;
+                sounds.playCollect();
+                this.updateHUD();
+
+                // Add game juice floating text
+                this.floatingTexts.push(new FloatingText(note.x - 10, note.y - 15, `+1 ${note.label}!`, '#00ffcc'));
+            }
+        });
+
+        // Check Switch activation
+        this.switches.forEach(sw => {
+            if (!sw.pressed &&
+                this.player.x < sw.x + sw.width &&
+                this.player.x + this.player.width > sw.x &&
+                this.player.y + this.player.height >= sw.y &&
+                this.player.y + this.player.height <= sw.y + 12) {
+                
+                sw.pressed = true;
+                sounds.playVictoryJingle();
+                this.floatingTexts.push(new FloatingText(sw.x - 10, sw.y - 15, "EXAM EXPOSURE!", '#ffcc00'));
+                
+                // Drop a giant notes file on Chad!
+                this.triggerBossDamage();
+            }
+        });
+
+        // Check Level Goal reached (reaching Priya)
+        if (this.player.x + this.player.width > this.priya.x) {
+            // Must collect all notes before progressing
+            if (this.collectedNotes >= this.maxNotes) {
+                this.finishLevel();
+            }
+        }
+    }
+
+    diePlayer() {
+        this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 20, "HEART CRACKED!", '#ff3366'));
+        this.player.die();
+    }
+
+    triggerBossDamage() {
+        if (!this.chad || !this.chad.isBoss) return;
+        
+        // Visual drop of notebook from sky onto Chad
+        let noteDropY = 0;
+        const noteDropInterval = setInterval(() => {
+            noteDropY += 15;
+            if (noteDropY >= this.chad.y) {
+                clearInterval(noteDropInterval);
+                
+                // Damage boss
+                this.chad.bossHp--;
+                sounds.playHit();
