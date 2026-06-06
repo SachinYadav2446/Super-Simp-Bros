@@ -1440,3 +1440,57 @@ class GameController {
         // Update Chad (if present)
         if (this.chad) {
             this.chad.update(this.platforms);
+
+            // Collide with Chad (in Boss phase)
+            if (this.chad.isBoss &&
+                this.player.x < this.chad.x + this.chad.width &&
+                this.player.x + this.player.width > this.chad.x &&
+                this.player.y < this.chad.y + this.chad.height &&
+                this.player.y + this.player.height > this.chad.y) {
+                
+                // If Rahul bounces on top of Chad's head
+                if (this.player.vy > 0 && this.player.y + this.player.height - this.player.vy <= this.chad.y + 10) {
+                    this.player.vy = -8; // bounce back
+                    sounds.playHit();
+                    this.floatingTexts.push(new FloatingText(this.chad.x, this.chad.y - 15, "BOUNCED!", '#ff3366'));
+                } else {
+                    this.diePlayer();
+                }
+            }
+        }
+
+        // Update projectiles / Kettlebells
+        this.projectiles.forEach((proj, idx) => {
+            proj.update(this.platforms);
+
+            // Kettlebells bounce in level 2
+            if (this.level === 2 && !proj.roll) {
+                // simple bouncing logic
+                if (proj.vy === 0 && Math.random() < 0.02) {
+                    proj.vy = -8;
+                }
+                proj.vy += 0.4;
+            }
+
+            // Check collision with player
+            if (this.player.x < proj.x + proj.width &&
+                this.player.x + this.player.width > proj.x &&
+                this.player.y < proj.y + proj.height &&
+                this.player.y + this.player.height > proj.y) {
+                this.diePlayer();
+            }
+
+            // Remove out of bounds dumbbells
+            if (proj.roll && (proj.x < 0 || proj.y > GAME_HEIGHT)) {
+                this.projectiles.splice(idx, 1);
+            }
+        });
+
+        // Check Note collection
+        this.notes.forEach(note => {
+            if (!note.collected &&
+                this.player.x < note.x + note.width &&
+                this.player.x + this.player.width > note.x &&
+                this.player.y < note.y + note.height &&
+                this.player.y + this.player.height > note.y) {
+                
