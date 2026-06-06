@@ -1035,3 +1035,33 @@ const DIALOGUES = {
         { name: "Priya", text: "How could you be so mean, Rahul? Chad didn't do anything! But thanks for the final exam notes, Chad and I really needed them to pass." },
         { name: "Priya", text: "Since you helped us pass, you're officially invited to be the Best Man at our wedding next week!" },
         { name: "Chad", text: "Yeah, thanks buddy. Catch you later! Keep writing those notes!" }
+    ]
+};
+
+// --- Game Master Controller ---
+class GameController {
+    constructor() {
+        this.level = 1;
+        this.gameState = 'menu'; // menu, playing, cutscene, gameover, victory
+        this.score = 0;
+        this.maxNotes = 5;
+        this.collectedNotes = 0;
+        this.hope = 100;
+        this.cameraX = 0;
+        this.player = null;
+        this.priya = null;
+        this.chad = null;
+        this.platforms = [];
+        this.notes = [];
+        this.projectiles = [];
+        this.switches = [];
+        this.background = new ParallaxBackground();
+        this.floatingTexts = [];
+        this.springboards = [];
+        this.rosePetals = [];
+
+        // Dialogue variables
+        this.currentDialogueList = [];
+        this.dialogueIndex = 0;
+        this.dialogueCallback = null;
+
