@@ -292,3 +292,76 @@ class Player {
         if (keys.left) {
             this.vx = -this.speed;
             this.facing = 'left';
+            this.isMoving = true;
+        } else if (keys.right) {
+            this.vx = this.speed;
+            this.facing = 'right';
+            this.isMoving = true;
+        } else {
+            this.vx *= 0.8; // Friction
+        }
+
+        // Apply gravity
+        this.vy += 0.6; // Gravity constant
+
+        // Jump
+        if (keys.jump && this.grounded) {
+            this.vy = this.jumpForce;
+            this.grounded = false;
+            sounds.playJump();
+        }
+
+        // Update positions
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // Springboard collision check before static platform collision
+        springboards.forEach(sb => {
+            if (this.x < sb.x + sb.width &&
+                this.x + this.width > sb.x &&
+                this.y + this.height >= sb.y &&
+                this.y + this.height <= sb.y + 16 &&
+                this.vy >= 0) { // falling or walking onto it
+                
+                this.vy = -16.5; // Launch Rahul high!
+                this.grounded = false;
+                sb.activated = true;
+                sb.activeTimer = 10;
+                sounds.playJump();
+                if (game && game.floatingTexts) {
+                    game.floatingTexts.push(new FloatingText(sb.x - 10, sb.y - 12, "BOOST JUMP!", '#00ff00'));
+                }
+            }
+        });
+
+        // Collision logic
+        this.grounded = false;
+        platforms.forEach(plat => {
+            // Check intersection using AABB
+            if (this.x < plat.x + plat.width &&
+                this.x + this.width > plat.x &&
+                this.y < plat.y + plat.height &&
+                this.y + this.height > plat.y) {
+
+                // Calculate overlap depths
+                let overlapX = Math.min(this.x + this.width, plat.x + plat.width) - Math.max(this.x, plat.x);
+                let overlapY = Math.min(this.y + this.height, plat.y + plat.height) - Math.max(this.y, plat.y);
+
+                if (overlapX > overlapY) {
+                    // Collision on Y axis
+                    if (this.vy > 0 && this.y + this.height - this.vy <= plat.y + 2) { // Falling onto platform
+                        this.y = plat.y - this.height;
+                        this.vy = 0;
+                        this.grounded = true;
+                    } else if (this.vy < 0 && this.y - this.vy >= plat.y + plat.height - 2) { // Hitting from below
+                        this.y = plat.y + plat.height;
+                        this.vy = 0;
+                    }
+                } else {
+                    // Collision on X axis
+                    if (this.vx > 0) {
+                        this.x = plat.x - this.width;
+                    } else if (this.vx < 0) {
+                        this.x = plat.x + plat.width;
+                    }
+                    this.vx = 0;
