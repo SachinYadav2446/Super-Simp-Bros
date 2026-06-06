@@ -256,3 +256,201 @@ body {
     box-shadow: 
         0 6px 20px rgba(153, 51, 255, 0.6),
         0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+.arcade-btn:active {
+    transform: translateY(1px);
+    box-shadow: 
+        0 2px 10px rgba(153, 51, 255, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* HUD System overlay */
+.hud-overlay {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 15;
+    pointer-events: none;
+}
+
+.hud-item {
+    background: rgba(18, 19, 26, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    padding: 10px 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.hud-item .label {
+    font-size: 0.55rem;
+    color: #a3a7c2;
+    text-shadow: 0 0 5px rgba(255,255,255,0.1);
+}
+
+.hud-item .value {
+    font-size: 0.65rem;
+    color: #fff;
+    text-shadow: 0 0 8px rgba(255,255,255,0.5);
+}
+
+/* Hope Bar slider */
+.hope-bar-container {
+    width: 80px;
+    height: 10px;
+    background: #15151a;
+    border-radius: 5px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.hope-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--heart-red), #ff7e9e);
+    width: 100%;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 
+        0 0 10px var(--heart-red),
+        0 0 20px rgba(255, 74, 117, 0.5);
+}
+
+/* Dialogue / Cutscene overlay */
+.cutscene-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 25;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    padding-bottom: 20px;
+    background: rgba(0, 0, 0, 0.15); /* Subtle dark focus filter */
+    transition: opacity 0.3s ease;
+}
+
+.cutscene-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.dialogue-box {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+    text-align: left;
+    animation: none;
+}
+
+.speaker-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    border: 2px solid var(--neon-blue);
+    background-color: #1a1a24;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    flex-shrink: 0;
+    box-shadow: 0 0 10px rgba(51, 204, 255, 0.3);
+}
+
+.dialogue-content {
+    flex-grow: 1;
+}
+
+.speaker-name {
+    font-size: 0.65rem;
+    color: var(--neon-blue);
+    margin-bottom: 8px;
+    display: block;
+}
+
+.dialogue-text-content, .dialogue-text {
+    font-size: 0.95rem;
+    line-height: 1.4;
+    color: #fff;
+}
+
+.dialogue-footer {
+    position: absolute;
+    bottom: 8px;
+    right: 15px;
+}
+
+.dialogue-footer span {
+    font-size: 0.45rem;
+    color: #8c90a6;
+}
+
+/* Mobile Controls Styling */
+.mobile-controls {
+    display: none; /* Hidden on desktop, toggled via Media queries or JS */
+    width: 100%;
+    max-width: 800px;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 5px;
+    margin-top: 5px;
+}
+
+.dpad {
+    display: flex;
+    gap: 15px;
+}
+
+.control-btn {
+    background: linear-gradient(180deg, #2d2f3d, #14161f);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 
+        0 6px 12px rgba(0, 0, 0, 0.5),
+        inset 0 1px 1px rgba(255,255,255,0.1);
+    touch-action: manipulation;
+    transition: background 0.1s, transform 0.1s;
+}
+
+.control-btn:active {
+    background: linear-gradient(180deg, var(--neon-purple), #6b1eb3);
+    border-color: #b87dfa;
+    transform: scale(0.9);
+    box-shadow: 
+        0 2px 4px rgba(0,0,0,0.4),
+        0 0 15px rgba(153, 51, 255, 0.6);
+}
+
+.action-buttons {
+    display: flex;
+}
+
+.jump-btn {
+    width: 85px;
+    height: 65px;
+    border-radius: 30px;
+    background: linear-gradient(180deg, var(--neon-red), #b31038);
+    box-shadow: 
+        0 6px 12px rgba(255, 51, 102, 0.25),
+        inset 0 1px 1px rgba(255,255,255,0.2);
+    font-size: 0.65rem;
+}
