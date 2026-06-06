@@ -903,3 +903,135 @@ class ParallaxBackground {
                 ctx.fillRect(bx, 60, 160, 90);
                 ctx.strokeRect(bx, 60, 160, 90);
                 
+                // Chalk formulas
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+                ctx.font = '6px "Press Start 2P"';
+                if (i === 0) {
+                    ctx.fillText("CHEM 101: LOV-3", bx + 10, 85);
+                    ctx.fillText("Rahul+Notes=💔", bx + 10, 110);
+                    ctx.fillText("Chad+Gym=Priya", bx + 10, 125);
+                } else if (i === 1) {
+                    ctx.fillText("MATHS 202: PROB", bx + 10, 85);
+                    ctx.fillText("P(Priya loves T)=0", bx + 10, 110);
+                    ctx.fillText("P(Priya loves H)=1", bx + 10, 125);
+                } else if (i === 2) {
+                    ctx.fillText("BIOLOGY: HEARTS", bx + 10, 85);
+                    ctx.fillText("Rahul = Friend", bx + 10, 110);
+                    ctx.fillText("Chad = Chad", bx + 10, 125);
+                } else {
+                    ctx.fillText("EXAM TIME TABLE", bx + 10, 85);
+                    ctx.fillText("Simping = FAIL", bx + 10, 110);
+                    ctx.fillText("Gains = PASS", bx + 10, 125);
+                }
+            }
+
+            // Drawn lines to look like graph paper college notes
+            ctx.strokeStyle = 'rgba(51, 204, 255, 0.05)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < GAME_WIDTH; x += 30) {
+                ctx.beginPath();
+                ctx.moveTo(x - (scrollX * 0.1) % 30, 0);
+                ctx.lineTo(x - (scrollX * 0.1) % 30, GAME_HEIGHT);
+                ctx.stroke();
+            }
+
+        } else if (level === 2) {
+            // Level 2: Neon Gym Cafe (Dark Tech Blue / Magenta glow)
+            let grad = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT);
+            grad.addColorStop(0, '#0a0518');
+            grad.addColorStop(1, '#020005');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+            // Parallax Neon Lines/Gym Frames
+            ctx.strokeStyle = 'rgba(255, 51, 102, 0.06)';
+            ctx.lineWidth = 4;
+            for (let i = 0; i < 5; i++) {
+                ctx.strokeRect(50 + i * 280 - (scrollX * 0.3) % 1000, 80, 120, 240);
+            }
+
+            // Neon glowing gym signs in background
+            ctx.font = '8px "Press Start 2P"';
+            for (let i = 0; i < 3; i++) {
+                let sx = 200 + i * 650 - (scrollX * 0.25) % 1950;
+                ctx.save();
+                if (i === 0) {
+                    ctx.fillStyle = '#ff3366';
+                    ctx.shadowColor = '#ff3366';
+                    ctx.shadowBlur = 8;
+                    ctx.fillText("NO SIMPING, ONLY LIFTING!", sx, 60);
+                } else if (i === 1) {
+                    ctx.fillStyle = '#33ccff';
+                    ctx.shadowColor = '#33ccff';
+                    ctx.shadowBlur = 8;
+                    ctx.fillText("CHAD'S CAFE: 100% GAINS", sx, 100);
+                } else {
+                    ctx.fillStyle = '#9933ff';
+                    ctx.shadowColor = '#9933ff';
+                    ctx.shadowBlur = 8;
+                    ctx.fillText("GYM BRO ZONE", sx, 70);
+                }
+                ctx.restore();
+            }
+        } else {
+            // Level 3: Sunset Graduation Castle (Rich Orange / Violet Sunset)
+            let grad = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT);
+            grad.addColorStop(0, '#2e1137');
+            grad.addColorStop(0.5, '#721b47');
+            grad.addColorStop(1, '#f87060');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+            // Stars fading out in the sunset
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            this.stars.forEach(star => {
+                ctx.fillRect(star.x - (scrollX * 0.05) % GAME_WIDTH, star.y, star.size, star.size);
+            });
+
+            // Parallax Castle towers in distance
+            ctx.fillStyle = '#1e0c25';
+            for (let i = 0; i < 3; i++) {
+                let tx = 80 + i * 380 - (scrollX * 0.15) % GAME_WIDTH;
+                ctx.fillRect(tx, 160, 80, 290);
+                ctx.beginPath();
+                ctx.moveTo(tx - 10, 160);
+                ctx.lineTo(tx + 40, 100);
+                ctx.lineTo(tx + 90, 160);
+                ctx.fill();
+            }
+        }
+    }
+}
+
+// --- Dialogue Engine Data ---
+const DIALOGUES = {
+    L1_START: [
+        { name: "Rahul", text: "Exam week is tomorrow and Priya doesn't have the chemistry notes. I stayed up all night compiling the ultimate study package! I must get them to her!" },
+        { name: "Rahul", text: "But these floating platforms and college hallways are full of failing grades and alarm clocks. Let's start jumping!" }
+    ],
+    L1_END: [
+        { name: "Rahul", text: "Priya! I did it! I collected all the missing notes for you!" },
+        { name: "Priya", text: "Oh Rahul! You literally compiled all these chemistry sheets? That's so cute!" },
+        { name: "Priya", text: "You are literally the sweetest, most helpful friend ever. Meet me at the Cafe near the gym later, I have a special surprise for you!" },
+        { name: "Rahul", text: "A surprise?! She must really like me! I'm on my way!" }
+    ],
+    L2_START: [
+        { name: "Rahul", text: "I've arrived at the Gym Cafe. But wait... why are there dumbbells bouncing everywhere? And where is Priya?" }
+    ],
+    L2_END: [
+        { name: "Rahul", text: "Priya! I'm here! What was the surprise?" },
+        { name: "Priya", text: "Hey Rahul! Meet my gym partner, Chad! He's so cool!" },
+        { name: "Chad", text: "Yo, Rahul! Priya told me you make awesome homework notes. Pretty neat hobby, little bro. Let's see some gains!" },
+        { name: "Priya", text: "Yeah Rahul! You're honestly like a brother to me. We are hosting our post-exam celebration party at the Grand Castle. You MUST come!" },
+        { name: "Rahul", text: "Brother?! Gym partner?! Ouch... but wait, she invited me to the Grand Castle. There's still a chance! I will go to the castle!" }
+    ],
+    L3_START: [
+        { name: "Rahul", text: "This is it. The Grand Castle. Priya is waiting, but Chad is guarding the entrance! I must get past him." }
+    ],
+    L3_END: [
+        { name: "Rahul", text: "Priya! I defeated Chad and brought the final exam leak notes! We can study together forever!" },
+        { name: "Priya", text: "Oh my god, Rahul! Chad! Are you hurt?!" },
+        { name: "Chad", text: "Ugh... my muscles... they're bruised..." },
+        { name: "Priya", text: "How could you be so mean, Rahul? Chad didn't do anything! But thanks for the final exam notes, Chad and I really needed them to pass." },
+        { name: "Priya", text: "Since you helped us pass, you're officially invited to be the Best Man at our wedding next week!" },
+        { name: "Chad", text: "Yeah, thanks buddy. Catch you later! Keep writing those notes!" }
