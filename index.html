@@ -18,3 +18,49 @@
         </header>
 
         <!-- Main Game Container -->
+        <div class="game-container">
+            <!-- Startup / Menu Screen -->
+            <div id="menu-screen" class="overlay-screen active">
+                <div class="menu-content glass-card">
+                    <h2 class="pixel-text neon-red">START QUEST</h2>
+                    <div class="story-teaser">
+                        <p>Rahul wrote the perfect notes. Priya needs them. But Chad has her heart. Can Rahul win her over, or is he destined for the ultimate friendzone?</p>
+                    </div>
+                    <div class="instructions-box">
+                        <div class="control-guide">
+                            <span class="pixel-text label">PC Controls:</span>
+                            <span class="value">A / D or Arrow Keys to Move | SPACE or W to Jump</span>
+                        </div>
+                        <div class="control-guide">
+                            <span class="pixel-text label">Mobile Controls:</span>
+                            <span class="value">Use the on-screen D-Pad and Jump button below.</span>
+                        </div>
+                    </div>
+                    <button id="start-btn" class="arcade-btn pixel-text">INSERT COIN & PLAY</button>
+                </div>
+            </div>
+
+            <!-- Game Over / Ending Screens -->
+            <div id="game-over-screen" class="overlay-screen hidden">
+                <div class="menu-content glass-card">
+                    <h2 class="pixel-text neon-red text-shake">GAME OVER</h2>
+                    <p id="game-over-reason">Rahul gave up hope...</p>
+                    <button id="restart-btn" class="arcade-btn pixel-text">TRY AGAIN</button>
+                </div>
+            </div>
+
+            <div id="victory-screen" class="overlay-screen hidden">
+                <div class="menu-content glass-card final-ending-card">
+                    <h2 class="pixel-text neon-gold">THE END?</h2>
+                    <div class="ending-box">
+                        <div id="ending-cinema" class="cinema-display">
+                            <!-- Visual simulation of the ending will render here or on canvas -->
+                        </div>
+                        <div class="ending-dialogue glass-card">
+                            <p id="ending-text">Tanya looks at the notes...</p>
+                        </div>
+                    </div>
+                    <button id="play-again-btn" class="arcade-btn pixel-text">PLAY AGAIN</button>
+                </div>
+            </div>
+
