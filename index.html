@@ -21,21 +21,54 @@
         <div class="game-container">
             <!-- Startup / Menu Screen -->
             <div id="menu-screen" class="overlay-screen active">
-                <div class="menu-content glass-card">
-                    <h2 class="pixel-text neon-red">START QUEST</h2>
-                    <div class="story-teaser">
-                        <p>Rahul wrote the perfect notes. Priya needs them. But Chad has her heart. Can Rahul win her over, or is he destined for the ultimate friendzone?</p>
-                    </div>
-                    <div class="instructions-box">
-                        <div class="control-guide">
-                            <span class="pixel-text label">PC Controls:</span>
-                            <span class="value">A / D or Arrow Keys to Move | SPACE or W to Jump</span>
-                        </div>
-                        <div class="control-guide">
-                            <span class="pixel-text label">Mobile Controls:</span>
-                            <span class="value">Use the on-screen D-Pad and Jump button below.</span>
+                <div class="menu-content glass-card menu-scroll-container">
+                    <h2 class="pixel-text neon-red logo-anim">START QUEST</h2>
+                    
+                    <!-- 1. Difficulty Selector -->
+                    <div class="menu-section">
+                        <span class="pixel-text section-title">SELECT DIFFICULTY</span>
+                        <div class="selection-row" id="difficulty-select">
+                            <button class="select-chip active" data-difficulty="normal">NORMAL</button>
+                            <button class="select-chip" data-difficulty="easy">EASY</button>
+                            <button class="select-chip" data-difficulty="hard">HARD</button>
                         </div>
                     </div>
+                    
+                    <!-- 2. Character Selector -->
+                    <div class="menu-section">
+                        <span class="pixel-text section-title">SELECT CHARACTER</span>
+                        <div class="selection-grid" id="character-select">
+                            <div class="selection-card active" data-char="rahul">
+                                <div class="char-avatar-mini rahul-avatar"></div>
+                                <span class="pixel-text char-name">RAHUL</span>
+                                <span class="char-desc">The Scholar. Balanced stats.</span>
+                                <div class="stat-bar"><div class="fill" style="width: 70%;"></div></div>
+                            </div>
+                            <div class="selection-card" data-char="priya">
+                                <div class="char-avatar-mini priya-avatar"></div>
+                                <span class="pixel-text char-name">PRIYA</span>
+                                <span class="char-desc">Floaty & light. Low gravity.</span>
+                                <div class="stat-bar"><div class="fill float-fill" style="width: 50%;"></div></div>
+                            </div>
+                            <div class="selection-card" data-char="chad">
+                                <div class="char-avatar-mini chad-avatar"></div>
+                                <span class="pixel-text char-name">CHAD</span>
+                                <span class="char-desc">Gym Bro. High speed, heavy drops.</span>
+                                <div class="stat-bar"><div class="fill heavy-fill" style="width: 90%;"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 3. Skin Selector (For Rahul) -->
+                    <div class="menu-section" id="skin-section">
+                        <span class="pixel-text section-title">SELECT SKIN</span>
+                        <div class="selection-row" id="skin-select">
+                            <button class="select-chip active" data-skin="casual">CASUAL</button>
+                            <button class="select-chip" data-skin="gym">GYM VEST</button>
+                            <button class="select-chip" data-skin="suit">FORMAL SUIT</button>
+                        </div>
+                    </div>
+                    
                     <button id="start-btn" class="arcade-btn pixel-text">INSERT COIN & PLAY</button>
                 </div>
             </div>
