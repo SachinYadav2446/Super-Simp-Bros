@@ -1235,7 +1235,6 @@ class FloatingText {
         ctx.fillText(this.text, this.x, this.y);
         ctx.restore();
     }
-}  }
 }
 
 // --- Trampoline / Textbook springboards ---
@@ -1306,7 +1305,8 @@ class RosePetal {
     }
 }
 
-// --- Parallax Background Classclass ParallaxBackground {
+// --- Parallax Background ---
+class ParallaxBackground {
     constructor() {
         this.stars = [];
         for (let i = 0; i < 40; i++) {
