@@ -901,3 +901,391 @@ body {
             0 0 20px var(--neon-purple);
     }
 }
+
+/* --- USP UI System (Tabs, Overworld Map, Upgrade Shop, Badges, HighScores) --- */
+
+.menu-scroll-container {
+    max-height: 92%;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--neon-purple) rgba(0, 0, 0, 0.3);
+}
+
+.menu-scroll-container::-webkit-scrollbar {
+    width: 6px;
+}
+.menu-scroll-container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+}
+.menu-scroll-container::-webkit-scrollbar-thumb {
+    background: var(--neon-purple);
+    border-radius: 4px;
+}
+
+.menu-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+.wallet-display {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 204, 0, 0.3);
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 0.6rem;
+    color: var(--neon-gold);
+    text-shadow: 0 0 5px rgba(255, 204, 0, 0.5);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.menu-tabs {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    border-bottom: 1px solid var(--glass-border);
+    margin-bottom: 15px;
+    gap: 4px;
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    color: #8c90a6;
+    padding: 8px 6px;
+    font-size: 0.4rem;
+    font-family: var(--font-pixel);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 2px solid transparent;
+    flex-grow: 1;
+    text-align: center;
+}
+
+.tab-btn:hover {
+    color: #fff;
+}
+
+.tab-btn.active {
+    color: var(--neon-blue);
+    border-bottom-color: var(--neon-blue);
+    text-shadow: 0 0 8px rgba(51, 204, 255, 0.5);
+}
+
+.tab-panel {
+    display: none;
+    width: 100%;
+}
+
+.tab-panel.active {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: panelFadeIn 0.3s ease-out;
+}
+
+@keyframes panelFadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Panel SETUP spacing overrides */
+#panel-setup {
+    gap: 15px;
+}
+
+#panel-setup .menu-section {
+    margin-bottom: 0px;
+    width: 100%;
+}
+
+/* Panel MAP (Overworld) styling */
+.overworld-container {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+}
+
+.overworld-map {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-gap: 12px;
+    justify-items: center;
+    align-items: center;
+}
+
+.level-node {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.02);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.3);
+    font-family: var(--font-pixel);
+    font-size: 0.6rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: not-allowed;
+    position: relative;
+    transition: all 0.25s ease;
+}
+
+.level-node.unlocked {
+    cursor: pointer;
+    color: #fff;
+    background: rgba(153, 51, 255, 0.15);
+    border-color: var(--neon-purple);
+    box-shadow: 0 0 10px rgba(153, 51, 255, 0.4);
+    animation: pulseNode 1.5s infinite alternate;
+}
+
+.level-node.completed {
+    cursor: pointer;
+    color: #fff;
+    background: rgba(51, 204, 102, 0.15);
+    border-color: #33cc66;
+    box-shadow: 0 0 10px rgba(51, 204, 102, 0.4);
+}
+
+.level-node.active-selection {
+    border-color: var(--neon-blue) !important;
+    box-shadow: 0 0 15px var(--neon-blue) !important;
+    transform: scale(1.1);
+}
+
+.level-node.locked::after {
+    content: "🔒";
+    font-size: 0.5rem;
+    position: absolute;
+    bottom: -3px;
+    right: -3px;
+}
+
+@keyframes pulseNode {
+    from { box-shadow: 0 0 8px rgba(153, 51, 255, 0.3); }
+    to { box-shadow: 0 0 16px rgba(153, 51, 255, 0.6), 0 0 4px #fff; }
+}
+
+.level-detail-card {
+    width: 100%;
+    padding: 12px 18px;
+    border-radius: 8px;
+    text-align: left;
+    margin-top: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    animation: cardFloat 4s ease-in-out infinite;
+}
+
+.level-detail-card.hidden {
+    display: none;
+}
+
+#detail-level-title {
+    font-size: 0.65rem;
+    color: var(--neon-blue);
+    margin-bottom: 2px;
+}
+
+#detail-level-desc {
+    font-size: 0.75rem;
+    color: #b0b3c1;
+    margin-bottom: 4px;
+}
+
+.detail-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: #a3a7c2;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 6px;
+}
+
+.arcade-btn-small {
+    background: linear-gradient(135deg, var(--neon-blue), #0072ff);
+    border: none;
+    color: #fff;
+    padding: 8px 16px;
+    font-size: 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0, 114, 255, 0.4);
+    align-self: flex-end;
+    transition: all 0.2s ease;
+}
+
+.arcade-btn-small:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(0, 114, 255, 0.6);
+}
+
+/* Shop styling */
+.shop-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    width: 100%;
+}
+
+.shop-card {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+    border-radius: 8px;
+    animation: none !important;
+}
+
+.upgrade-icon {
+    font-size: 1.5rem;
+    margin-bottom: 2px;
+    filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));
+}
+
+.upgrade-title {
+    font-size: 0.45rem;
+    color: var(--neon-purple);
+    text-transform: uppercase;
+}
+
+.upgrade-desc {
+    font-size: 0.65rem;
+    color: #a3a7c2;
+    line-height: 1.2;
+    flex-grow: 1;
+}
+
+.buy-btn {
+    width: 100%;
+    background: rgba(255, 204, 0, 0.1);
+    border: 1px solid var(--neon-gold);
+    color: var(--neon-gold);
+    padding: 6px;
+    font-size: 0.45rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: var(--font-pixel);
+    transition: all 0.2s ease;
+}
+
+.buy-btn:hover {
+    background: var(--neon-gold);
+    color: #000;
+    box-shadow: 0 0 10px rgba(255, 204, 0, 0.4);
+}
+
+.buy-btn.owned {
+    background: rgba(51, 204, 102, 0.1) !important;
+    border-color: #33cc66 !important;
+    color: #33cc66 !important;
+    cursor: default;
+}
+
+/* Badges styling */
+.badges-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    width: 100%;
+}
+
+.badge-card {
+    background: rgba(18, 19, 26, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 4px;
+    transition: all 0.3s ease;
+}
+
+.badge-card.locked {
+    opacity: 0.35;
+    filter: grayscale(1);
+}
+
+.badge-card:not(.locked) {
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 10px rgba(51, 204, 255, 0.2);
+    background: rgba(51, 204, 255, 0.05);
+}
+
+.badge-icon {
+    font-size: 1.4rem;
+    margin-bottom: 2px;
+}
+
+.badge-title {
+    font-size: 0.42rem;
+    color: #fff;
+    text-transform: uppercase;
+}
+
+.badge-desc {
+    font-size: 0.6rem;
+    color: #8c90a6;
+    line-height: 1.2;
+}
+
+/* Scores table styling */
+.scores-container {
+    width: 100%;
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+}
+
+.scores-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.65rem;
+    text-align: left;
+}
+
+.scores-table th {
+    background: rgba(0,0,0,0.5);
+    color: var(--neon-blue);
+    font-family: var(--font-pixel);
+    font-size: 0.42rem;
+    padding: 10px 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.scores-table td {
+    padding: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    color: #e0e1dd;
+}
+
+.scores-table tr:hover {
+    background: rgba(255,255,255,0.02);
+}
+
+.scores-table .status-unlocked {
+    color: var(--neon-purple);
+}
+
+.scores-table .status-completed {
+    color: #33cc66;
+}
+
+.scores-table .status-locked {
+    color: #62657a;
+}

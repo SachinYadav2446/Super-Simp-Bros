@@ -175,6 +175,12 @@ class SoundSynthesizer {
         setTimeout(() => this.playTone(783.99, 'sine', 0.15), 160); // G5
     }
 
+    playCoin() {
+        this.init();
+        this.playTone(987.77, 'sine', 0.08); // B5
+        setTimeout(() => this.playTone(1318.51, 'sine', 0.15), 80); // E6
+    }
+
     playHit() {
         this.playTone(180, 'sawtooth', 0.25, 60);
     }
@@ -300,9 +306,22 @@ class Player {
             this.jumpForce = -10.5; // lower jump
             this.gravity = 0.75; // heavy fast fall
         }
+
+        // Apply coffee speed boost upgrade
+        if (game.upgrades && game.upgrades.coffee) {
+            this.speed *= 1.15;
+        }
+        
+        this.jumpCount = 0;
+        this.jumpPressedLastFrame = false;
     }
 
     update(platforms, bounds, springboards = []) {
+        // Reset jump count when grounded
+        if (this.grounded) {
+            this.jumpCount = 0;
+        }
+
         // Horizontal movement
         this.isMoving = false;
         if (keys.left) {
@@ -320,12 +339,23 @@ class Player {
         // Apply gravity
         this.vy += this.gravity;
 
-        // Jump
-        if (keys.jump && this.grounded) {
-            this.vy = this.jumpForce;
-            this.grounded = false;
-            sounds.playJump();
+        // Jump (Double jump support)
+        if (keys.jump) {
+            if (this.grounded) {
+                this.vy = this.jumpForce;
+                this.grounded = false;
+                this.jumpCount = 1;
+                sounds.playJump();
+            } else if (game.upgrades && game.upgrades.sneakers && !this.jumpPressedLastFrame && this.jumpCount < 2) {
+                this.vy = this.jumpForce * 0.9; // 90% power double jump
+                this.jumpCount = 2;
+                sounds.playJump();
+                if (game.floatingTexts) {
+                    game.floatingTexts.push(new FloatingText(this.x, this.y - 10, "DOUBLE JUMP!", '#00ffcc'));
+                }
+            }
         }
+        this.jumpPressedLastFrame = keys.jump;
 
         // Update positions
         this.x += this.vx;
@@ -1023,6 +1053,46 @@ class Note {
     }
 }
 
+class Coin {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.width = 16;
+        this.height = 16;
+        this.collected = false;
+        this.bob = 0;
+        this.angle = Math.random() * Math.PI;
+    }
+
+    draw() {
+        if (this.collected) return;
+        this.bob = Math.sin(Date.now() * 0.007 + this.x) * 3;
+        this.angle += 0.05;
+
+        ctx.save();
+        ctx.translate(this.x + this.width/2, this.y + this.height/2 + this.bob);
+        ctx.scale(Math.sin(this.angle), 1);
+
+        // Gold coin body
+        ctx.fillStyle = '#ffcc00';
+        ctx.strokeStyle = '#d4af37';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(0, 0, 8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Inner circle
+        ctx.strokeStyle = '#b89418';
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.arc(0, 0, 5, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.restore();
+    }
+}
+
 class Dumbbell {
     constructor(x, y, vx, vy, roll = false) {
         this.x = x;
@@ -1547,6 +1617,34 @@ class GameController {
         this.dialogueCallback = null;
 
         this.levelWidths = [1800, 2000, 1600, 1800, 2200, 1800, 2000, 2000, 2200, 1800];
+
+        // --- USP Upgrades and Progression Data ---
+        this.coins = 0;
+        this.coinsCollectedThisLevel = 0;
+        this.coinsList = [];
+        this.upgrades = {
+            sneakers: false,
+            coffee: false,
+            belt: false,
+            magnet: false
+        };
+        this.unlockedLevels = 1;
+        this.highScores = {}; // Level -> { bestTime, maxHope, completed }
+        this.achievements = {
+            first_notes: false,
+            complete_l1: false,
+            verma_dodge: false,
+            defeat_chad: false,
+            dream_buy: false,
+            rich_simp: false,
+            nightmare_survivor: false
+        };
+        
+        this.levelStartTime = 0;
+        this.damagedThisLevel = false;
+
+        // Load saved state immediately
+        this.loadFromLocalStorage();
     }
 
     init() {
@@ -1599,10 +1697,47 @@ class GameController {
             });
         }
 
+        // Tab switching click handlers
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                sounds.init();
+                const targetTab = btn.getAttribute('data-tab');
+                this.switchTab(targetTab);
+            });
+        });
+
+        // Start Quest / Enter Overworld Map
         document.getElementById('start-btn').addEventListener('click', () => {
             sounds.init();
-            this.startGame();
+            this.switchTab('map');
         });
+
+        // Launch Level Button (Map screen detail card)
+        const launchBtn = document.getElementById('launch-level-btn');
+        if (launchBtn) {
+            launchBtn.addEventListener('click', () => {
+                sounds.init();
+                if (this.selectedLevelForDetail) {
+                    this.startGame(this.selectedLevelForDetail);
+                }
+            });
+        }
+
+        // Shop Buy Buttons clicking
+        const buyBtns = document.querySelectorAll('.buy-btn');
+        buyBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                sounds.init();
+                const card = btn.closest('.shop-card');
+                const upgradeId = card.getAttribute('data-upgrade');
+                const cost = parseInt(btn.getAttribute('data-cost'));
+                this.buyUpgrade(upgradeId, cost, btn);
+            });
+        });
+
+        // Update coin counts in the menu initially
+        this.updateMenuCoinDisplay();
 
         document.getElementById('restart-btn').addEventListener('click', () => {
             sounds.init();
@@ -1612,6 +1747,7 @@ class GameController {
         document.getElementById('play-again-btn').addEventListener('click', () => {
             sounds.init();
             this.resetToMenu();
+            this.switchTab('setup');
         });
 
         const fullscreenBtn = document.getElementById('fullscreen-btn');
@@ -1662,8 +1798,8 @@ class GameController {
         });
     }
 
-    startGame() {
-        debugLog("startGame() triggered");
+    startGame(levelNum = 1) {
+        debugLog("startGame() triggered for level: " + levelNum);
         sounds.clearSadSong();
         const menu = document.getElementById('menu-screen');
         menu.classList.add('hidden');
@@ -1677,8 +1813,16 @@ class GameController {
             this.hope = 100;
         }
 
-        this.level = 1;
-        this.loadLevel(1);
+        // Apply starting Hope booster upgrade
+        if (this.upgrades && this.upgrades.booster) {
+            this.hope = Math.min(100, this.hope + 10);
+        }
+
+        this.level = levelNum;
+        this.coinsCollectedThisLevel = 0;
+        this.damagedThisLevel = false;
+        this.levelStartTime = Date.now();
+        this.loadLevel(levelNum);
     }
 
     restartGame() {
@@ -1692,6 +1836,15 @@ class GameController {
         } else {
             this.hope = 100;
         }
+
+        // Apply starting Hope booster upgrade
+        if (this.upgrades && this.upgrades.booster) {
+            this.hope = Math.min(100, this.hope + 10);
+        }
+
+        this.coinsCollectedThisLevel = 0;
+        this.damagedThisLevel = false;
+        this.levelStartTime = Date.now();
         this.loadLevel(this.level);
     }
 
@@ -2063,6 +2216,9 @@ class GameController {
             this.notes.push(new Note(1840, 240, "CRSH"));
         }
 
+        // Spawn coins automatically on platforms
+        this.spawnCoinsForLevel();
+
         // Central start dialogue trigger
         const startDialog = DIALOGUES[`L${this.level}_START`] || [
             { name: "Rahul", text: "Let's go!" }
@@ -2079,14 +2235,23 @@ class GameController {
         } else if (this.selectedDifficulty === 'hard') {
             damage = 30;
         }
+
+        // Apply gym belt defense upgrade
+        if (this.upgrades && this.upgrades.belt) {
+            damage = Math.max(5, damage - 5);
+        }
+
         this.hope -= damage;
+        this.damagedThisLevel = true;
         this.updateHUD();
+        
         if (this.hope <= 0) {
             let name = "Rahul";
             if (this.selectedChar === 'priya') name = "Priya";
             if (this.selectedChar === 'chad') name = "Chad";
             this.gameOver(`${name} ran out of Hope. The Simp Quest has failed.`);
         } else {
+            this.coinsCollectedThisLevel = 0; // Reset coins collected in this attempt
             this.loadLevel(this.level);
         }
     }
@@ -2270,6 +2435,63 @@ class GameController {
             }
         });
 
+        // Apply Heart Magnet pull upgrade
+        if (this.upgrades && this.upgrades.magnet) {
+            const pullSpeed = 4.5;
+            const magnetRadius = 120;
+            const px = this.player.x + this.player.width / 2;
+            const py = this.player.y + this.player.height / 2;
+
+            // Pull notes
+            this.notes.forEach(note => {
+                if (!note.collected) {
+                    const nx = note.x + note.width / 2;
+                    const ny = note.y + note.height / 2;
+                    const dx = px - nx;
+                    const dy = py - ny;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist < magnetRadius) {
+                        note.x += (dx / dist) * pullSpeed;
+                        note.y += (dy / dist) * pullSpeed;
+                    }
+                }
+            });
+
+            // Pull coins
+            if (this.coinsList) {
+                this.coinsList.forEach(coin => {
+                    if (!coin.collected) {
+                        const cx = coin.x + coin.width / 2;
+                        const cy = coin.y + coin.height / 2;
+                        const dx = px - cx;
+                        const dy = py - cy;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        if (dist < magnetRadius) {
+                            coin.x += (dx / dist) * pullSpeed;
+                            coin.y += (dy / dist) * pullSpeed;
+                        }
+                    }
+                });
+            }
+        }
+
+        // Check Coin collection
+        if (this.coinsList) {
+            this.coinsList.forEach(coin => {
+                if (!coin.collected &&
+                    this.player.x < coin.x + coin.width &&
+                    this.player.x + this.player.width > coin.x &&
+                    this.player.y < coin.y + coin.height &&
+                    this.player.y + this.player.height > coin.y) {
+                    
+                    coin.collected = true;
+                    this.coinsCollectedThisLevel = (this.coinsCollectedThisLevel || 0) + 1;
+                    sounds.playCoin();
+                    this.floatingTexts.push(new FloatingText(coin.x, coin.y - 15, "+1 🪙", '#ffcc00'));
+                }
+            });
+        }
+
         // Check Note collection
         this.notes.forEach(note => {
             if (!note.collected &&
@@ -2350,11 +2572,42 @@ class GameController {
     finishLevel() {
         this.gameState = 'cutscene';
         
+        // Calculate level completion speed run time
+        const timeTaken = Math.floor((Date.now() - this.levelStartTime) / 1000);
+        const hopeRemaining = this.hope;
+        
+        // Save stats to scores
+        this.saveLevelStats(this.level, timeTaken, hopeRemaining);
+        
+        // Unlock next level
+        const nextLevel = this.level + 1;
+        if (nextLevel <= 10 && nextLevel > this.unlockedLevels) {
+            this.unlockedLevels = nextLevel;
+        }
+
+        // Commit coins collected this level to total wallet
+        const levelCoins = this.coinsCollectedThisLevel || 0;
+        this.coins += levelCoins;
+        this.coinsCollectedThisLevel = 0; // reset level collector
+
+        // Check for achievements
+        this.checkAchievements();
+
+        // Save progress to local storage
+        this.saveToLocalStorage();
+
         const nextLevelFunc = () => {
-            if (this.level < 10) {
-                this.loadLevel(this.level + 1);
-            } else {
+            // Check if game completely finished
+            if (this.level >= 10) {
                 this.showSadEnding();
+            } else {
+                // Return to map screen
+                document.getElementById('hud').classList.add('hidden');
+                const menu = document.getElementById('menu-screen');
+                menu.classList.remove('hidden');
+                menu.classList.add('active');
+                this.gameState = 'menu';
+                this.switchTab('map');
             }
         };
 
@@ -2619,6 +2872,10 @@ class GameController {
         // Draw collectibles
         this.notes.forEach(note => note.draw());
 
+        if (this.coinsList) {
+            this.coinsList.forEach(coin => coin.draw());
+        }
+
         // Draw projectiles
         this.projectiles.forEach(proj => proj.draw());
 
@@ -2649,6 +2906,301 @@ class GameController {
         this.floatingTexts.forEach(ft => ft.draw());
 
         ctx.restore();
+    }
+
+    // --- USP Progression Systems & Overworld Mapping ---
+
+    updateMenuCoinDisplay() {
+        const coinSpan = document.getElementById('menu-coin-count');
+        if (coinSpan) {
+            coinSpan.textContent = this.coins;
+        }
+    }
+
+    switchTab(tabId) {
+        // Toggle tab buttons
+        const tabs = document.querySelectorAll('.tab-btn');
+        tabs.forEach(t => {
+            if (t.getAttribute('data-tab') === tabId) {
+                t.classList.add('active');
+            } else {
+                t.classList.remove('active');
+            }
+        });
+
+        // Toggle tab panels
+        const panels = document.querySelectorAll('.tab-panel');
+        panels.forEach(p => {
+            if (p.id === `panel-${tabId}`) {
+                p.classList.add('active');
+            } else {
+                p.classList.remove('active');
+            }
+        });
+
+        // Specific panel renders
+        if (tabId === 'map') {
+            this.renderOverworldMap();
+        } else if (tabId === 'shop') {
+            this.renderShop();
+        } else if (tabId === 'badges') {
+            this.renderBadges();
+        } else if (tabId === 'scores') {
+            this.renderScores();
+        }
+    }
+
+    renderOverworldMap() {
+        const mapContainer = document.getElementById('overworld-map');
+        if (!mapContainer) return;
+        mapContainer.innerHTML = '';
+
+        const levelTitles = [
+            "Library Lockdown", "Sunset Park Chase", "Protein Shake Pit",
+            "Cafeteria Chaos", "Exam Hall Escape", "Canteen Corner",
+            "Auditorium Alert", "Dorm Defiance", "Nostalgia Lane", "The Wedding Clash"
+        ];
+
+        for (let i = 1; i <= 10; i++) {
+            const node = document.createElement('div');
+            node.className = 'level-node';
+            node.textContent = i;
+            
+            const completed = this.highScores[i] && this.highScores[i].completed;
+            const unlocked = i === 1 || (this.highScores[i - 1] && this.highScores[i - 1].completed) || i <= this.unlockedLevels;
+
+            if (completed) {
+                node.classList.add('completed');
+            } else if (unlocked) {
+                node.classList.add('unlocked');
+            } else {
+                node.classList.add('locked');
+            }
+
+            if (this.selectedLevelForDetail === i) {
+                node.classList.add('active-selection');
+            }
+
+            if (unlocked || completed) {
+                node.addEventListener('click', () => {
+                    document.querySelectorAll('.level-node').forEach(n => n.classList.remove('active-selection'));
+                    node.classList.add('active-selection');
+                    
+                    this.selectedLevelForDetail = i;
+                    const detailCard = document.getElementById('level-detail-card');
+                    detailCard.classList.remove('hidden');
+                    
+                    document.getElementById('detail-level-title').textContent = `LEVEL ${i}: ${levelTitles[i-1]}`;
+                    
+                    let notesReq = 5;
+                    if (i === 10) notesReq = 0;
+                    document.getElementById('detail-level-notes').textContent = `0 / ${notesReq}`;
+                    
+                    const scoreRecord = this.highScores[i];
+                    if (scoreRecord) {
+                        document.getElementById('detail-level-time').textContent = `${scoreRecord.bestTime}s`;
+                        document.getElementById('detail-level-hope').textContent = `${scoreRecord.maxHope}%`;
+                    } else {
+                        document.getElementById('detail-level-time').textContent = '--';
+                        document.getElementById('detail-level-hope').textContent = '--';
+                    }
+                });
+            }
+
+            mapContainer.appendChild(node);
+        }
+    }
+
+    renderShop() {
+        this.updateMenuCoinDisplay();
+        const cards = document.querySelectorAll('.shop-card');
+        cards.forEach(card => {
+            const upgradeId = card.getAttribute('data-upgrade');
+            const btn = card.querySelector('.buy-btn');
+            const cost = parseInt(btn.getAttribute('data-cost'));
+            const isOwned = this.upgrades[upgradeId];
+
+            if (isOwned) {
+                btn.textContent = 'OWNED';
+                btn.className = 'buy-btn owned';
+                btn.disabled = true;
+            } else {
+                btn.textContent = `🪙 ${cost}`;
+                btn.className = 'buy-btn';
+                btn.disabled = false;
+                if (this.coins < cost) {
+                    btn.style.opacity = '0.5';
+                    btn.style.cursor = 'not-allowed';
+                } else {
+                    btn.style.opacity = '1';
+                    btn.style.cursor = 'pointer';
+                }
+            }
+        });
+    }
+
+    buyUpgrade(upgradeId, cost, btn) {
+        if (this.upgrades[upgradeId]) return;
+
+        if (this.coins >= cost) {
+            this.coins -= cost;
+            this.upgrades[upgradeId] = true;
+            sounds.playVictoryJingle();
+
+            this.floatingTexts.push(new FloatingText(this.player ? this.player.x : GAME_WIDTH / 2, this.player ? this.player.y - 10 : GAME_HEIGHT / 2, "UPGRADE UNLOCKED!", '#ffcc00'));
+
+            if (upgradeId === 'sneakers') {
+                this.achievements.dream_buy = true;
+            }
+
+            this.saveToLocalStorage();
+            this.renderShop();
+            this.checkAchievements();
+        } else {
+            sounds.playHit();
+        }
+    }
+
+    renderBadges() {
+        for (const badgeId in this.achievements) {
+            const badgeCard = document.getElementById(`badge-${badgeId}`);
+            if (badgeCard) {
+                if (this.achievements[badgeId]) {
+                    badgeCard.classList.remove('locked');
+                } else {
+                    badgeCard.classList.add('locked');
+                }
+            }
+        }
+    }
+
+    renderScores() {
+        const body = document.getElementById('scores-table-body');
+        if (!body) return;
+        body.innerHTML = '';
+
+        const levelTitles = [
+            "Library Lockdown", "Sunset Park Chase", "Protein Shake Pit",
+            "Cafeteria Chaos", "Exam Hall Escape", "Canteen Corner",
+            "Auditorium Alert", "Dorm Defiance", "Nostalgia Lane", "The Wedding Clash"
+        ];
+
+        for (let i = 1; i <= 10; i++) {
+            const tr = document.createElement('tr');
+            const scoreRecord = this.highScores[i];
+            
+            let statusText = 'LOCKED';
+            let statusClass = 'status-locked';
+            let bestTime = '--';
+            let maxHope = '--';
+
+            const completed = scoreRecord && scoreRecord.completed;
+            const unlocked = i === 1 || (this.highScores[i - 1] && this.highScores[i - 1].completed) || i <= this.unlockedLevels;
+
+            if (completed) {
+                statusText = 'COMPLETED';
+                statusClass = 'status-completed';
+                bestTime = `${scoreRecord.bestTime}s`;
+                maxHope = `${scoreRecord.maxHope}%`;
+            } else if (unlocked) {
+                statusText = 'UNLOCKED';
+                statusClass = 'status-unlocked';
+            }
+
+            tr.innerHTML = `
+                <td>L${i}: ${levelTitles[i-1]}</td>
+                <td class="${statusClass}">${statusText}</td>
+                <td>${bestTime}</td>
+                <td>${maxHope}</td>
+            `;
+            body.appendChild(tr);
+        }
+    }
+
+    saveLevelStats(level, time, hope) {
+        if (!this.highScores[level]) {
+            this.highScores[level] = {
+                bestTime: time,
+                maxHope: hope,
+                completed: true
+            };
+        } else {
+            this.highScores[level].completed = true;
+            if (time < this.highScores[level].bestTime) {
+                this.highScores[level].bestTime = time;
+            }
+            if (hope > this.highScores[level].maxHope) {
+                this.highScores[level].maxHope = hope;
+            }
+        }
+    }
+
+    checkAchievements() {
+        if (this.coins >= 100) {
+            this.achievements.rich_simp = true;
+        }
+        if (this.collectedNotes > 0) {
+            this.achievements.first_notes = true;
+        }
+        if (this.highScores[1] && this.highScores[1].completed) {
+            this.achievements.complete_l1 = true;
+        }
+        if (this.level === 5 && !this.damagedThisLevel && this.highScores[5] && this.highScores[5].completed) {
+            this.achievements.verma_dodge = true;
+        }
+        if (this.highScores[10] && this.highScores[10].completed) {
+            this.achievements.defeat_chad = true;
+            if (this.selectedDifficulty === 'hard') {
+                this.achievements.nightmare_survivor = true;
+            }
+        }
+        this.saveToLocalStorage();
+    }
+
+    saveToLocalStorage() {
+        const data = {
+            coins: this.coins,
+            upgrades: this.upgrades,
+            unlockedLevels: this.unlockedLevels,
+            highScores: this.highScores,
+            achievements: this.achievements
+        };
+        localStorage.setItem('super_simp_bros_save', JSON.stringify(data));
+    }
+
+    loadFromLocalStorage() {
+        try {
+            const raw = localStorage.getItem('super_simp_bros_save');
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (parsed.coins !== undefined) this.coins = parsed.coins;
+                if (parsed.upgrades !== undefined) this.upgrades = Object.assign(this.upgrades, parsed.upgrades);
+                if (parsed.unlockedLevels !== undefined) this.unlockedLevels = parsed.unlockedLevels;
+                if (parsed.highScores !== undefined) this.highScores = parsed.highScores;
+                if (parsed.achievements !== undefined) this.achievements = Object.assign(this.achievements, parsed.achievements);
+            }
+        } catch (e) {
+            console.error("Failed to load game progress:", e);
+        }
+    }
+
+    spawnCoinsForLevel() {
+        this.coinsList = [];
+        this.coinsCollectedThisLevel = 0;
+        if (this.level === 10) return;
+
+        this.platforms.forEach((plat, index) => {
+            if (index === 0 && plat.width > 1200) return;
+            if (plat.width < 60) return;
+
+            let numCoins = Math.floor(plat.width / 130);
+            if (numCoins > 0) {
+                let startX = plat.x + (plat.width - (numCoins - 1) * 35) / 2;
+                for (let i = 0; i < numCoins; i++) {
+                    this.coinsList.push(new Coin(startX + i * 35, plat.y - 30));
+                }
+            }
+        });
     }
 }
 

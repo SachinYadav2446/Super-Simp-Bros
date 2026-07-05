@@ -22,54 +22,180 @@
             <!-- Startup / Menu Screen -->
             <div id="menu-screen" class="overlay-screen active">
                 <div class="menu-content glass-card menu-scroll-container">
-                    <h2 class="pixel-text neon-red logo-anim">START QUEST</h2>
-                    
-                    <!-- 1. Difficulty Selector -->
-                    <div class="menu-section">
-                        <span class="pixel-text section-title">SELECT DIFFICULTY</span>
-                        <div class="selection-row" id="difficulty-select">
-                            <button class="select-chip active" data-difficulty="normal">NORMAL</button>
-                            <button class="select-chip" data-difficulty="easy">EASY</button>
-                            <button class="select-chip" data-difficulty="hard">HARD</button>
+                    <div class="menu-header-row">
+                        <h2 class="pixel-text neon-red logo-anim">THE SIMP QUEST</h2>
+                        <div class="wallet-display pixel-text">
+                            🪙 <span id="menu-coin-count">0</span>
                         </div>
                     </div>
                     
-                    <!-- 2. Character Selector -->
-                    <div class="menu-section">
-                        <span class="pixel-text section-title">SELECT CHARACTER</span>
-                        <div class="selection-grid" id="character-select">
-                            <div class="selection-card active" data-char="rahul">
-                                <div class="char-avatar-mini rahul-avatar"></div>
-                                <span class="pixel-text char-name">RAHUL</span>
-                                <span class="char-desc">The Scholar. Balanced stats.</span>
-                                <div class="stat-bar"><div class="fill" style="width: 70%;"></div></div>
+                    <!-- Menu Tabs Navigation -->
+                    <div class="menu-tabs">
+                        <button class="tab-btn active" data-tab="setup">SETUP</button>
+                        <button class="tab-btn" data-tab="map">MAP</button>
+                        <button class="tab-btn" data-tab="shop">SHOP</button>
+                        <button class="tab-btn" data-tab="badges">BADGES</button>
+                        <button class="tab-btn" data-tab="scores">SCORES</button>
+                    </div>
+
+                    <!-- Panel 1: SETUP -->
+                    <div id="panel-setup" class="tab-panel active">
+                        <!-- 1. Difficulty Selector -->
+                        <div class="menu-section">
+                            <span class="pixel-text section-title">SELECT DIFFICULTY</span>
+                            <div class="selection-row" id="difficulty-select">
+                                <button class="select-chip active" data-difficulty="normal">NORMAL</button>
+                                <button class="select-chip" data-difficulty="easy">EASY</button>
+                                <button class="select-chip" data-difficulty="hard">HARD</button>
                             </div>
-                            <div class="selection-card" data-char="priya">
-                                <div class="char-avatar-mini priya-avatar"></div>
-                                <span class="pixel-text char-name">PRIYA</span>
-                                <span class="char-desc">Floaty & light. Low gravity.</span>
-                                <div class="stat-bar"><div class="fill float-fill" style="width: 50%;"></div></div>
+                        </div>
+                        
+                        <!-- 2. Character Selector -->
+                        <div class="menu-section">
+                            <span class="pixel-text section-title">SELECT CHARACTER</span>
+                            <div class="selection-grid" id="character-select">
+                                <div class="selection-card active" data-char="rahul">
+                                    <div class="char-avatar-mini rahul-avatar"></div>
+                                    <span class="pixel-text char-name">RAHUL</span>
+                                    <span class="char-desc">The Scholar. Balanced stats.</span>
+                                    <div class="stat-bar"><div class="fill" style="width: 70%;"></div></div>
+                                </div>
+                                <div class="selection-card" data-char="priya">
+                                    <div class="char-avatar-mini priya-avatar"></div>
+                                    <span class="pixel-text char-name">PRIYA</span>
+                                    <span class="char-desc">Floaty & light. Low gravity.</span>
+                                    <div class="stat-bar"><div class="fill float-fill" style="width: 50%;"></div></div>
+                                </div>
+                                <div class="selection-card" data-char="chad">
+                                    <div class="char-avatar-mini chad-avatar"></div>
+                                    <span class="pixel-text char-name">CHAD</span>
+                                    <span class="char-desc">Gym Bro. High speed, heavy drops.</span>
+                                    <div class="stat-bar"><div class="fill heavy-fill" style="width: 90%;"></div></div>
+                                </div>
                             </div>
-                            <div class="selection-card" data-char="chad">
-                                <div class="char-avatar-mini chad-avatar"></div>
-                                <span class="pixel-text char-name">CHAD</span>
-                                <span class="char-desc">Gym Bro. High speed, heavy drops.</span>
-                                <div class="stat-bar"><div class="fill heavy-fill" style="width: 90%;"></div></div>
+                        </div>
+                        
+                        <!-- 3. Skin Selector (For Rahul) -->
+                        <div class="menu-section" id="skin-section">
+                            <span class="pixel-text section-title">SELECT SKIN</span>
+                            <div class="selection-row" id="skin-select">
+                                <button class="select-chip active" data-skin="casual">CASUAL</button>
+                                <button class="select-chip" data-skin="gym">GYM VEST</button>
+                                <button class="select-chip" data-skin="suit">FORMAL SUIT</button>
+                            </div>
+                        </div>
+                        
+                        <button id="start-btn" class="arcade-btn pixel-text">ENTER OVERWORLD MAP</button>
+                    </div>
+
+                    <!-- Panel 2: MAP -->
+                    <div id="panel-map" class="tab-panel">
+                        <div class="overworld-container">
+                            <div class="overworld-map" id="overworld-map">
+                                <!-- 10 Level Nodes will be dynamically generated here -->
+                            </div>
+                        </div>
+                        <div class="level-detail-card glass-card hidden" id="level-detail-card">
+                            <h3 class="pixel-text text-glow" id="detail-level-title">LEVEL 1</h3>
+                            <p id="detail-level-desc">Library Lockdown: Find Tanya's notes.</p>
+                            <div class="detail-stats">
+                                <span>Notes: <strong id="detail-level-notes">0/5</strong></span>
+                                <span>Best Time: <strong id="detail-level-time">--</strong></span>
+                                <span>Max Hope: <strong id="detail-level-hope">--</strong></span>
+                            </div>
+                            <button id="launch-level-btn" class="arcade-btn-small pixel-text">LAUNCH LEVEL</button>
+                        </div>
+                    </div>
+
+                    <!-- Panel 3: SHOP -->
+                    <div id="panel-shop" class="tab-panel">
+                        <div class="shop-grid">
+                            <div class="shop-card glass-card" data-upgrade="sneakers">
+                                <div class="upgrade-icon">👟</div>
+                                <span class="pixel-text upgrade-title">AIR JORDANS</span>
+                                <span class="upgrade-desc">Allows a double jump mid-air. Essential for high ledges.</span>
+                                <button class="buy-btn pixel-text" data-cost="50">🪙 50</button>
+                            </div>
+                            <div class="shop-card glass-card" data-upgrade="coffee">
+                                <div class="upgrade-icon">☕</div>
+                                <span class="pixel-text upgrade-title">DOUBLE ESPRESSO</span>
+                                <span class="upgrade-desc">Permanently increases your speed by 15%.</span>
+                                <button class="buy-btn pixel-text" data-cost="30">🪙 30</button>
+                            </div>
+                            <div class="shop-card glass-card" data-upgrade="belt">
+                                <div class="upgrade-icon">🥋</div>
+                                <span class="pixel-text upgrade-title">GYM BELT</span>
+                                <span class="upgrade-desc">Protective support. Reduces Hope loss when taking hit by 5.</span>
+                                <button class="buy-btn pixel-text" data-cost="30">🪙 30</button>
+                            </div>
+                            <div class="shop-card glass-card" data-upgrade="magnet">
+                                <div class="upgrade-icon">🧲</div>
+                                <span class="pixel-text upgrade-title">HEART MAGNET</span>
+                                <span class="upgrade-desc">Pulls nearby notes and coins towards you from 120px away.</span>
+                                <button class="buy-btn pixel-text" data-cost="40">🪙 40</button>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- 3. Skin Selector (For Rahul) -->
-                    <div class="menu-section" id="skin-section">
-                        <span class="pixel-text section-title">SELECT SKIN</span>
-                        <div class="selection-row" id="skin-select">
-                            <button class="select-chip active" data-skin="casual">CASUAL</button>
-                            <button class="select-chip" data-skin="gym">GYM VEST</button>
-                            <button class="select-chip" data-skin="suit">FORMAL SUIT</button>
+
+                    <!-- Panel 4: BADGES -->
+                    <div id="panel-badges" class="tab-panel">
+                        <div class="badges-grid" id="badges-grid">
+                            <div class="badge-card locked" id="badge-first_notes">
+                                <div class="badge-icon">📄</div>
+                                <span class="pixel-text badge-title">FRESHMAN</span>
+                                <span class="badge-desc">Collect your first study note.</span>
+                            </div>
+                            <div class="badge-card locked" id="badge-complete_l1">
+                                <div class="badge-icon">🌙</div>
+                                <span class="pixel-text badge-title">MIDNIGHT SCHOLAR</span>
+                                <span class="badge-desc">Complete Level 1.</span>
+                            </div>
+                            <div class="badge-card locked" id="badge-verma_dodge">
+                                <div class="badge-icon">🥷</div>
+                                <span class="pixel-text badge-title">NINJA CHEATER</span>
+                                <span class="badge-desc">Pass Level 5 (Exam Hall) without taking damage.</span>
+                            </div>
+                            <div class="badge-card locked" id="badge-defeat_chad">
+                                <div class="badge-icon">👑</div>
+                                <span class="pixel-text badge-title">CHAD BUSTER</span>
+                                <span class="badge-desc">Defeat Chad and complete the game.</span>
+                            </div>
+                            <div class="badge-card locked" id="badge-dream_buy">
+                                <div class="badge-icon">👟</div>
+                                <span class="pixel-text badge-title">AIR RAHUL</span>
+                                <span class="badge-desc">Buy the Double Jump Sneakers from the Shop.</span>
+                            </div>
+                            <div class="badge-card locked" id="badge-rich_simp">
+                                <div class="badge-icon">🪙</div>
+                                <span class="pixel-text badge-title">GOLD DIGGER</span>
+                                <span class="badge-desc">Collect 100 Simp Coins.</span>
+                            </div>
+                            <div class="badge-card locked" id="badge-nightmare_survivor">
+                                <div class="badge-icon">💀</div>
+                                <span class="pixel-text badge-title">NIGHTMARE</span>
+                                <span class="badge-desc">Complete any level on Hard difficulty.</span>
+                            </div>
                         </div>
                     </div>
-                    
-                    <button id="start-btn" class="arcade-btn pixel-text">INSERT COIN & PLAY</button>
+
+                    <!-- Panel 5: SCORES -->
+                    <div id="panel-scores" class="tab-panel">
+                        <div class="scores-container">
+                            <table class="scores-table">
+                                <thead>
+                                    <tr>
+                                        <th>LEVEL</th>
+                                        <th>STATUS</th>
+                                        <th>BEST TIME</th>
+                                        <th>MAX HOPE</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="scores-table-body">
+                                    <!-- Dynamic rows from 1 to 10 will go here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
 
