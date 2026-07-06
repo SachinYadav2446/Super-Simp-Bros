@@ -1289,3 +1289,44 @@ body {
 .scores-table .status-locked {
     color: #62657a;
 }
+
+.name-inputs-row {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    gap: 15px;
+    margin-bottom: 8px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex-grow: 1;
+    gap: 4px;
+}
+
+.input-label {
+    font-size: 0.42rem;
+    color: var(--neon-blue);
+    text-transform: uppercase;
+}
+
+.pixel-input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-family: var(--font-pixel);
+    font-size: 0.55rem;
+    color: #fff;
+    outline: none;
+    transition: all 0.25s ease;
+}
+
+.pixel-input:focus {
+    border-color: var(--neon-purple);
+    box-shadow: 0 0 10px rgba(153, 51, 255, 0.4);
+    background: rgba(0, 0, 0, 0.6);
+}

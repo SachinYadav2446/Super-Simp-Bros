@@ -1351,9 +1351,9 @@ class ParallaxBackground {
                 if (level === 1) {
                     if (i === 0) {
                         ctx.fillText("CHEM 101: LOV-3", bx + 10, 85);
-                        ctx.fillText("Rahul+Notes=💔", bx + 10, 110);
+                        ctx.fillText(`${game.userName}+Notes=💔`, bx + 10, 110);
                     } else if (i === 1) {
-                        ctx.fillText("P(Priya loves T)=0", bx + 10, 85);
+                        ctx.fillText(`P(${game.crushName} loves T)=0`, bx + 10, 85);
                     } else {
                         ctx.fillText("Study hard, simps!", bx + 10, 95);
                     }
@@ -1642,6 +1642,9 @@ class GameController {
         
         this.levelStartTime = 0;
         this.damagedThisLevel = false;
+        
+        this.userName = 'Rahul';
+        this.crushName = 'Priya';
 
         // Load saved state immediately
         this.loadFromLocalStorage();
@@ -1739,6 +1742,12 @@ class GameController {
         // Update coin counts in the menu initially
         this.updateMenuCoinDisplay();
 
+        // Pre-fill user and crush names from loaded state
+        const nameInput = document.getElementById('player-name-input');
+        const crushInput = document.getElementById('crush-name-input');
+        if (nameInput) nameInput.value = this.userName;
+        if (crushInput) crushInput.value = this.crushName;
+
         document.getElementById('restart-btn').addEventListener('click', () => {
             sounds.init();
             this.restartGame();
@@ -1801,6 +1810,14 @@ class GameController {
     startGame(levelNum = 1) {
         debugLog("startGame() triggered for level: " + levelNum);
         sounds.clearSadSong();
+
+        // Read custom names from inputs
+        const nameInput = document.getElementById('player-name-input');
+        const crushInput = document.getElementById('crush-name-input');
+        if (nameInput) this.userName = nameInput.value.trim() || 'Rahul';
+        if (crushInput) this.crushName = crushInput.value.trim() || 'Priya';
+        this.saveToLocalStorage();
+
         const menu = document.getElementById('menu-screen');
         menu.classList.add('hidden');
         menu.classList.remove('active');
@@ -2283,10 +2300,22 @@ class GameController {
         const textElem = document.getElementById('dialogue-text-content');
         const avatar = document.getElementById('dialogue-avatar');
 
-        nameElem.textContent = line.name;
-        textElem.textContent = line.text;
+        // Dynamically replace default names
+        let dispName = line.name;
+        if (dispName === "Rahul") {
+            dispName = this.userName;
+        } else if (dispName === "Priya") {
+            dispName = this.crushName;
+        }
 
-        // Custom style depending on speaker
+        let dispText = line.text;
+        dispText = dispText.replace(/Rahul/gi, this.userName);
+        dispText = dispText.replace(/Priya/gi, this.crushName);
+
+        nameElem.textContent = dispName;
+        textElem.textContent = dispText;
+
+        // Custom style depending on original speaker name
         if (line.name === "Rahul") {
             nameElem.style.color = "var(--neon-blue)";
             avatar.style.borderColor = "var(--neon-blue)";
@@ -2821,7 +2850,7 @@ class GameController {
         `;
 
         document.getElementById('ending-text').textContent = 
-            "Rahul lies on his bed in despair, clutching a cold beer bottle. Background music plays 'Channa Mereya'. He gave the notes, Chad got the girl. It's the ultimate simp tragedy...";
+            `${this.userName} lies on his bed in despair, clutching a cold beer bottle. Background music plays 'Channa Mereya'. He gave the notes, Chad got the girl. It's the ultimate simp tragedy...`;
     }
 
     draw() {
@@ -3163,7 +3192,9 @@ class GameController {
             upgrades: this.upgrades,
             unlockedLevels: this.unlockedLevels,
             highScores: this.highScores,
-            achievements: this.achievements
+            achievements: this.achievements,
+            userName: this.userName,
+            crushName: this.crushName
         };
         localStorage.setItem('super_simp_bros_save', JSON.stringify(data));
     }
@@ -3178,6 +3209,8 @@ class GameController {
                 if (parsed.unlockedLevels !== undefined) this.unlockedLevels = parsed.unlockedLevels;
                 if (parsed.highScores !== undefined) this.highScores = parsed.highScores;
                 if (parsed.achievements !== undefined) this.achievements = Object.assign(this.achievements, parsed.achievements);
+                if (parsed.userName !== undefined) this.userName = parsed.userName;
+                if (parsed.crushName !== undefined) this.crushName = parsed.crushName;
             }
         } catch (e) {
             console.error("Failed to load game progress:", e);
